@@ -4,28 +4,21 @@ const https = require("https");
 
 const url = "http://edition.cnn.com/article/sitemap-2021-11.html";
 
-const extractDate = ($) => [
-  ...new Set(
-    $(".date")
-      .map((_, a) => $(a).text())
-      .toArray()
-  ),
-];
-
-const extractLinks = ($) => [
-  ...new Set(
-    $(".sitemap-link a")
-      .map((_, a) => $(a).attr("href"))
-      .toArray()
-  ),
-];
+const extractContent = ($) =>
+  $(".sitemap-entry").find('ul > li')
+    .map((_, product) => {
+      const $product = $(product);
+      const link = $product.find("a");
+      return {
+        link: link.attr("href"),
+        date: $product.find('span[class="date"]').text(),
+        headline: link.text(),
+      };
+    })
+    .toArray();
 
 axios.get(url).then(({ data }) => {
   const $ = cheerio.load(data);
-  const links = extractLinks($);
-  const dates = extractDate($);
-  dates.shift();
-
-  console.log(links);
-  console.log(dates);
+  const content = extractContent($);
+  console.log(content);
 });
