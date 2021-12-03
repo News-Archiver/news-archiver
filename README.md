@@ -1,5 +1,5 @@
 # News Archiver
 
 ```console
-node index.js
+$ node index.js
 ```
