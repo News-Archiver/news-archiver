@@ -4,10 +4,13 @@ const https = require("https");
 
 const url = "http://edition.cnn.com/article/sitemap-2021-11.html";
 
-const extractDate = ($) =>
-  $(".date")
-    .map((_, a) => $(a).text())
-    .toArray();
+const extractDate = ($) => [
+  ...new Set(
+    $(".date")
+      .map((_, a) => $(a).text())
+      .toArray()
+  ),
+];
 
 const extractLinks = ($) => [
   ...new Set(
@@ -21,6 +24,7 @@ axios.get(url).then(({ data }) => {
   const $ = cheerio.load(data);
   const links = extractLinks($);
   const dates = extractDate($);
+  dates.shift();
 
   console.log(links);
   console.log(dates);
