@@ -16,6 +16,14 @@ const extractYearPage = ($) =>
     })
     .toArray();
 
+const called = ($, link) => {
+  axios.get(link).then(({ data }) => {
+    const $ = cheerio.load(data);
+    const content = extractContent($);
+    // console.log(content);
+  });
+};
+
 const subMonthsLink = ($, link) => {
   const fullYearLink = baseURL + link;
 
@@ -27,14 +35,6 @@ const subMonthsLink = ($, link) => {
       const fullMonthLink = baseURL + yearMonthLink[i]["link"];
       called($, fullMonthLink);
     }
-  });
-};
-
-const called = ($, link) => {
-  axios.get(link).then(({ data }) => {
-    const $ = cheerio.load(data);
-    const content = extractContent($);
-    // console.log(content);
   });
 };
 
