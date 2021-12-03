@@ -1,5 +1,8 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const https = require("https");
+
+const url = "https://edition.cnn.com";
 
 const extractContent = ($) =>
   $(".cd__content")
@@ -12,10 +15,23 @@ const extractContent = ($) =>
     })
     .toArray();
 
-const url = "https://edition.cnn.com";
+https.get(url, (res) => {
+  var chunks = [];
+  res.on("data", onGotData);
+  res.on("end", onEnd);
+
+  function onGotData(chunk) {
+    chunks.push(chunk);
+  }
+
+  function onEnd() {
+    console.log(chunks.join(""));
+  }
+});
+
 axios.get(url).then(({ data }) => {
-  const $ = cheerio.load(data); // Initialize cheerio
+  const $ = cheerio.load(data);
   const content = extractContent($);
 
-  console.log(content);
+  // console.log(content);
 });
