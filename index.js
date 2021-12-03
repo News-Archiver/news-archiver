@@ -16,11 +16,11 @@ const extractYearPage = ($) =>
     })
     .toArray();
 
-const called = ($, link) => {
+const callExtractContent = ($, link) => {
   axios.get(link).then(({ data }) => {
     const $ = cheerio.load(data);
     const content = extractContent($);
-    // console.log(content);
+    console.log(content);
   });
 };
 
@@ -33,7 +33,7 @@ const subMonthsLink = ($, link) => {
 
     for (var i = 0; i < yearMonthLink.length; i++) {
       const fullMonthLink = baseURL + yearMonthLink[i]["link"];
-      called($, fullMonthLink);
+      callExtractContent($, fullMonthLink);
     }
   });
 };
@@ -71,7 +71,6 @@ axios.get(yearURL).then(({ data }) => {
 
   // { year_link: '/article/sitemap-2011.html' },
   const yearShortLinks = extractYearPage($);
-  console.log(yearShortLinks);
 
   for (var i = 0; i < yearShortLinks.length; i++) {
     const yearFullLinks = yearShortLinks[i]["year_link"];
