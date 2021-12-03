@@ -2,13 +2,12 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const https = require("https");
 
-const url = "http://edition.cnn.com/article/sitemap-2021-12.html";
+const url = "http://edition.cnn.com/article/sitemap-2021-11.html";
 
-const extractDate = ($) => [
+const extractDate = ($) =>
   $(".date")
     .map((_, a) => $(a).text())
-    .toArray(),
-];
+    .toArray();
 
 const extractLinks = ($) => [
   ...new Set(
