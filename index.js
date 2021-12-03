@@ -15,20 +15,6 @@ const extractContent = ($) =>
     })
     .toArray();
 
-https.get(url, (res) => {
-  var chunks = [];
-  res.on("data", onGotData);
-  res.on("end", onEnd);
-
-  function onGotData(chunk) {
-    chunks.push(chunk);
-  }
-
-  function onEnd() {
-    console.log(chunks.join(""));
-  }
-});
-
 axios.get(url).then(({ data }) => {
   const $ = cheerio.load(data);
   const content = extractContent($);
