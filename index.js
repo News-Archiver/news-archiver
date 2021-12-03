@@ -3,7 +3,7 @@ const cheerio = require("cheerio");
 const https = require("https");
 
 const baseURL = "https://edition.cnn.com";
-const yearURL = "https://edition.cnn.com/sitemap.html";
+const yearURL = `${baseURL}/sitemap.html`;
 
 const extractYearPage = ($) =>
   $(".sitemaps-year-listing")
