@@ -2,22 +2,19 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const https = require("https");
 
-const url = "https://edition.cnn.com";
+const url = "http://edition.cnn.com/article/sitemap-2021-12.html";
 
-const extractContent = ($) =>
-  $(".cd__content")
-    .map((_, product) => {
-      const $product = $(product);
-      console.log($product);
-      return {
-        title: $product.find("span").text(),
-      };
-    })
-    .toArray();
+const extractLinks = ($) => [
+  ...new Set(
+    $(".sitemap-link a")
+      .map((_, a) => $(a).attr("href"))
+      .toArray()
+  ),
+];
 
 axios.get(url).then(({ data }) => {
   const $ = cheerio.load(data);
-  const content = extractContent($);
+  const links = extractLinks($);
 
-  // console.log(content);
+  console.log(links);
 });
