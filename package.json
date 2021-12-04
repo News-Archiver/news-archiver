@@ -2,7 +2,6 @@
   "dependencies": {
     "axios": "^0.24.0",
     "cheerio": "^1.0.0-rc.10",
-    "playwright": "^1.17.1"
   },
   "devDependencies": {
     "prettier": "2.5.0"
