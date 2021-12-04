@@ -1,9 +1,39 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const https = require("https");
+const mysql = require("mysql");
 
 const baseURL = "https://edition.cnn.com";
 const yearURL = `${baseURL}/sitemap.html`;
+
+var connection = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "hello123",
+  database: "news",
+});
+
+connection.connect(function (err) {
+  if (err) {
+    return console.error("error: " + err.message);
+  }
+  console.log("Connected!");
+
+  let createTodos = `create table if not exists cnn(
+                        id int primary key auto_increment,
+                        headline TEXT,
+                        link TEXT,
+                        date DATE,
+                        month TEXT
+                    )`;
+
+  connection.query(createTodos, function (err, results, fields) {
+    if (err) {
+      console.log(err.message);
+    }
+  });
+
+});
 
 const extractYearPage = ($) =>
   $(".sitemaps-year-listing")
@@ -19,8 +49,14 @@ const extractYearPage = ($) =>
 const callExtractContent = ($, link, month) => {
   axios.get(link).then(({ data }) => {
     const $ = cheerio.load(data);
-    const content = extractContent($, month);
-    console.log(content);
+    var save = extractContent($, month);
+    for (let i = 0; i < save.length; i++) {
+      var sql = `INSERT INTO cnn (headline, link, date, month) VALUES ("${save[i]["headline"]}", "${save[i]["link"]}", "${save[i]["date"]}", "${save[i]["month"]}");`;
+      console.log(sql);
+      connection.query(sql, function (err, result) {
+        if (err) throw err;
+      });
+    }
   });
 };
 
