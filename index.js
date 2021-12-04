@@ -48,7 +48,7 @@ const extractYearPage = ($) =>
 const callExtractContent = ($, link, month) => {
   axios.get(link).then(({ data }) => {
     const $ = cheerio.load(data);
-    var save = extractContent($, month);
+    let save = extractContent($, month);
     let reg = /("|'|`)/gm;
 
     for (let i = 0; i < save.length; i++) {
@@ -58,7 +58,6 @@ const callExtractContent = ($, link, month) => {
       date = date.replace(reg, "'");
       month = month.replace(reg, "'");
       var sql = `INSERT INTO cnn (headline, link, date, month) VALUES ("${headline}", "${link}", "${date}", "${month}");`;
-      console.log(sql);
       connection.query(sql, function (err, result) {
         if (err) throw err;
       });
