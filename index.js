@@ -16,10 +16,10 @@ const extractYearPage = ($) =>
     })
     .toArray();
 
-const callExtractContent = ($, link) => {
+const callExtractContent = ($, link, month) => {
   axios.get(link).then(({ data }) => {
     const $ = cheerio.load(data);
-    const content = extractContent($);
+    const content = extractContent($, month);
     console.log(content);
   });
 };
@@ -33,7 +33,7 @@ const subMonthsLink = ($, link) => {
 
     for (var i = 0; i < yearMonthLink.length; i++) {
       const fullMonthLink = baseURL + yearMonthLink[i]["link"];
-      callExtractContent($, fullMonthLink);
+      callExtractContent($, fullMonthLink, yearMonthLink[i]["month"]);
     }
   });
 };
@@ -51,8 +51,7 @@ const extractMonthsLink = ($) =>
     })
     .toArray();
 
-// Date : Headline
-const extractContent = ($) =>
+const extractContent = ($, month) =>
   $(".sitemap-entry")
     .find("ul > li")
     .map((_, product) => {
@@ -62,6 +61,7 @@ const extractContent = ($) =>
         link: link.attr("href"),
         date: $product.find('span[class="date"]').text(),
         headline: link.text(),
+        month: month,
       };
     })
     .toArray();
@@ -69,7 +69,6 @@ const extractContent = ($) =>
 axios.get(yearURL).then(({ data }) => {
   const $ = cheerio.load(data);
 
-  // { year_link: '/article/sitemap-2011.html' },
   const yearShortLinks = extractYearPage($);
 
   for (var i = 0; i < yearShortLinks.length; i++) {
