@@ -9,7 +9,7 @@ const yearURL = `${baseURL}/sitemap.html`;
 var connection = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "hello123",
+  password: "root",
   database: "news",
 });
 
@@ -52,12 +52,14 @@ const callExtractContent = ($, link, month) => {
     let reg = /("|'|`)/gm;
 
     for (let i = 0; i < save.length; i++) {
-      let { headline = ``, link = ``, date = ``, month = `` } = save[i];
+      let { headline, link, date, month } = save[i];
       headline = headline.replace(reg, "'");
       link = link.replace(reg, "'");
       date = date.replace(reg, "'");
       month = month.replace(reg, "'");
+
       var sql = `INSERT INTO cnn (headline, link, date, month) VALUES ("${headline}", "${link}", "${date}", "${month}");`;
+      console.log(sql);
       connection.query(sql, function (err, result) {
         if (err) throw err;
       });
