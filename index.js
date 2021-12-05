@@ -18,7 +18,7 @@ connection.connect(function (err) {
   }
   console.log("Connected!");
 
-  let createTodos = `create table if not exists cnn(
+  let createCNN = `create table if not exists cnn(
                         id int primary key auto_increment,
                         headline TEXT,
                         link TEXT,
@@ -26,7 +26,7 @@ connection.connect(function (err) {
                         month TEXT
                     )`;
 
-  connection.query(createTodos, function (err, results, fields) {
+  connection.query(createCNN, function (err, results, fields) {
     if (err) {
       console.log(err.message);
     }
@@ -69,7 +69,7 @@ const callExtractContent = ($, link, month) => {
 const subMonthsLink = ($, link) => {
   const fullYearLink = baseURL + link;
 
-  axios.get(fullYearLink).then(({ data }) => {
+  return axios.get(fullYearLink).then(({ data }) => {
     const $ = cheerio.load(data);
     const yearMonthLink = extractMonthsLink($);
 
@@ -108,13 +108,14 @@ const extractContent = ($, month) =>
     })
     .toArray();
 
-axios.get(yearURL).then(({ data }) => {
+axios.get(yearURL).then(async ({ data }) => {
   const $ = cheerio.load(data);
 
   const yearShortLinks = extractYearPage($);
 
   for (var i = 0; i < yearShortLinks.length; i++) {
     const yearFullLinks = yearShortLinks[i]["year_link"];
-    subMonthsLink($, yearFullLinks);
+    await subMonthsLink($, yearFullLinks);
   }
+  process.exit();
 });
