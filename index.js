@@ -1,6 +1,5 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
-const https = require("https");
 const mysql = require("mysql");
 
 const baseURL = "https://edition.cnn.com";
