@@ -45,7 +45,7 @@ const extractYearPage = ($) =>
     .toArray();
 
 const callExtractContent = ($, link, month) => {
-  return axios.get(link).then(async({ data }) => {
+  return axios.get(link).then(async ({ data }) => {
     const $ = cheerio.load(data);
     let save = await extractContent($, month);
     let reg = /("|'|`)/gm;
@@ -69,7 +69,7 @@ const callExtractContent = ($, link, month) => {
 const subMonthsLink = ($, link) => {
   const fullYearLink = baseURL + link;
 
-  return axios.get(fullYearLink).then(async({ data }) => {
+  return axios.get(fullYearLink).then(async ({ data }) => {
     const $ = cheerio.load(data);
     const yearMonthLink = await extractMonthsLink($);
 
