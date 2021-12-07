@@ -26,10 +26,11 @@ connection.connect(function (err) {
                         month TEXT
                     )`;
 
-  connection.query(createCNN, function (err, results, fields) {
+  connection.query(createCNN, function (err) {
     if (err) {
       console.log(err.message);
     }
+    console.log("Create DB");
   });
 });
 
@@ -44,7 +45,7 @@ const extractYearPage = ($) =>
     })
     .toArray();
 
-const callExtractContent = ($, link, month) => {
+const callExtractContent = (link, month) => {
   return axios.get(link).then(async ({ data }) => {
     const $ = cheerio.load(data);
     let save = await extractContent($, month);
@@ -59,14 +60,20 @@ const callExtractContent = ($, link, month) => {
 
       var sql = `INSERT INTO cnn (headline, link, date, month) VALUES ("${headline}", "${link}", "${date}", "${month}");`;
       console.log(sql);
-      await connection.query(sql, function (err, result) {
-        if (err) throw err;
+
+      await new Promise((resolve, reject) => {
+        connection.query(sql, (error, elements) => {
+          if (error) {
+            return reject(error);
+          }
+          return resolve(elements);
+        });
       });
     }
   });
 };
 
-const subMonthsLink = ($, link) => {
+const subMonthsLink = (link) => {
   const fullYearLink = baseURL + link;
 
   return axios.get(fullYearLink).then(async ({ data }) => {
@@ -75,7 +82,7 @@ const subMonthsLink = ($, link) => {
 
     for (var i = 0; i < yearMonthLink.length; i++) {
       const fullMonthLink = baseURL + yearMonthLink[i]["link"];
-      await callExtractContent($, fullMonthLink, yearMonthLink[i]["month"]);
+      await callExtractContent(fullMonthLink, yearMonthLink[i]["month"]);
     }
   });
 };
@@ -115,7 +122,8 @@ axios.get(yearURL).then(async ({ data }) => {
 
   for (var i = 0; i < yearShortLinks.length; i++) {
     const yearFullLinks = yearShortLinks[i]["year_link"];
-    await subMonthsLink($, yearFullLinks);
+    await subMonthsLink(yearFullLinks);
   }
+  connection.end();
   process.exit();
 });
