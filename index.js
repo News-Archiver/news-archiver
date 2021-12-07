@@ -45,9 +45,9 @@ const extractYearPage = ($) =>
     .toArray();
 
 const callExtractContent = ($, link, month) => {
-  return axios.get(link).then(({ data }) => {
+  return axios.get(link).then(async({ data }) => {
     const $ = cheerio.load(data);
-    let save = extractContent($, month);
+    let save = await extractContent($, month);
     let reg = /("|'|`)/gm;
 
     for (let i = 0; i < save.length; i++) {
@@ -59,7 +59,7 @@ const callExtractContent = ($, link, month) => {
 
       var sql = `INSERT INTO cnn (headline, link, date, month) VALUES ("${headline}", "${link}", "${date}", "${month}");`;
       console.log(sql);
-      connection.query(sql, function (err, result) {
+      await connection.query(sql, function (err, result) {
         if (err) throw err;
       });
     }
@@ -71,7 +71,7 @@ const subMonthsLink = ($, link) => {
 
   return axios.get(fullYearLink).then(async({ data }) => {
     const $ = cheerio.load(data);
-    const yearMonthLink = extractMonthsLink($);
+    const yearMonthLink = await extractMonthsLink($);
 
     for (var i = 0; i < yearMonthLink.length; i++) {
       const fullMonthLink = baseURL + yearMonthLink[i]["link"];
@@ -111,7 +111,7 @@ const extractContent = ($, month) =>
 axios.get(yearURL).then(async ({ data }) => {
   const $ = cheerio.load(data);
 
-  const yearShortLinks = extractYearPage($);
+  const yearShortLinks = await extractYearPage($);
 
   for (var i = 0; i < yearShortLinks.length; i++) {
     const yearFullLinks = yearShortLinks[i]["year_link"];
