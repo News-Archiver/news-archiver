@@ -12,7 +12,7 @@ var connection = mysql.createConnection({
   database: "news",
 });
 
-connection.connect(function (err) {
+connection.connect((err) => {
   if (err) {
     return console.error("error: " + err.message);
   }
