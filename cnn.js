@@ -30,7 +30,6 @@ connection.connect((err) => {
     if (err) {
       console.log(err.message);
     }
-    console.log("Create DB");
   });
 
   let deleteDuplicate =
