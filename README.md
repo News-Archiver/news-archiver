@@ -1,5 +1,5 @@
 # News Archiver
 
 ```console
-$ node cnn.js
+$ npm start
 ```
