@@ -3,12 +3,15 @@ import Axios from "axios";
 
 const Main = () => {
   const [cnnList, setCnnList] = useState([]);
-
-  useEffect(() => {
+  
+  const [loaded, setLoaded] = useState(false);
+    
+  if(!loaded) {
     Axios.get("http://localhost:3000/api/getCNN").then((data) => {
       setCnnList(data.data);
+      setLoaded(true);
     });
-  }, []);
+  }
 
   // let cnnList = ["hello", "yo", "hi"];
   return (
@@ -19,5 +22,7 @@ const Main = () => {
     </>
   );
 };
+
+
 
 export default Main;
