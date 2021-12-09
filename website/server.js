@@ -30,7 +30,7 @@ connection.connect((err) => {
 
 app.get("/", function (req, resp) {
   const viewData = { cnnData: cnnData };
-  resp.render("dataTemplate", viewData);
+  resp.render("cnnTemplate", viewData);
 });
 
 app.listen(3000);
