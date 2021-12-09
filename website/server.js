@@ -1,12 +1,10 @@
 const express = require("express");
-const app = express();
-const path = require("path");
 const mysql = require("mysql");
 
-var cnnData;
+const app = express();
+const PORT = 3000;
 
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
+var cnnData = new Array();
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -28,9 +26,17 @@ connection.connect((err) => {
   connection.end();
 });
 
-app.get("/", function (req, resp) {
-  const viewData = { cnnData: cnnData };
-  resp.render("cnnTemplate", viewData);
+app.use(function(req, resp, next) {
+  resp.header("Access-Control-Allow-Origin", "*");
+  resp.header("Access-Control-Allow-Methods", "GET, PUT, POST");
+  resp.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
 });
 
-app.listen(3000);
+app.get("/api/getCNN", function (req, resp) {
+  resp.send(cnnData);
+});
+
+const server = app.listen(PORT, () => {
+  console.log(`Server running http://localhost:${server.address().port}`);
+});
