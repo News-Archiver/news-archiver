@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "author": "Jan Poonthong",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node website/server.js",
+    "dev": "nodemon website/server.js",
     "format": "prettier --write .",
     "test": "jest"
   },
