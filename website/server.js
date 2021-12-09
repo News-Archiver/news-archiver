@@ -26,10 +26,13 @@ connection.connect((err) => {
   connection.end();
 });
 
-app.use(function(req, resp, next) {
+app.use(function (req, resp, next) {
   resp.header("Access-Control-Allow-Origin", "*");
   resp.header("Access-Control-Allow-Methods", "GET, PUT, POST");
-  resp.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  resp.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
   next();
 });
 
