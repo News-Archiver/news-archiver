@@ -29,11 +29,7 @@ connection.connect((err) => {
 });
 
 app.get("/", function (req, resp) {
-  const welcomeText = "Welcome to EJS";
-  const favoriteThings = ["NYC", "Music", "Code", "Movies"];
-  const viewData = {
-    cnnData: cnnData,
-  };
+  const viewData = { cnnData: cnnData };
   resp.render("dataTemplate", viewData);
 });
 
