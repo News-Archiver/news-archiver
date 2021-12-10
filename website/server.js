@@ -4,7 +4,7 @@ const mysql = require("mysql");
 const app = express();
 const PORT = 3000;
 
-var cnnData = new Array();
+var cnnData;
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -17,9 +17,7 @@ connection.connect((err) => {
   if (err) throw err;
   console.log("Connected!");
 
-  let getData = "SELECT * FROM news.cnn;";
-
-  connection.query(getData, (err, result) => {
+  connection.query("SELECT * FROM news.cnn;", (err, result) => {
     if (err) throw err;
     cnnData = result;
   });

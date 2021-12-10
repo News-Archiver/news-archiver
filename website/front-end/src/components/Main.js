@@ -1,8 +1,7 @@
 import { useState } from "react";
 import Axios from "axios";
 
-const Main = () => {
-  const [cnnList, setCnnList] = useState([]);
+const Main = ({ cnnList, setCnnList }) => {
   const [loaded, setLoaded] = useState(false);
 
   if (!loaded) {
@@ -11,8 +10,9 @@ const Main = () => {
     });
     setLoaded(true);
   }
+
   let temp = cnnList.map((val, key) => (
-    <p>
+    <p key={val.id}>
       {val.date} <a href={val.link}>{val.headline}</a>
     </p>
   ));
