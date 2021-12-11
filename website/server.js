@@ -4,8 +4,6 @@ const mysql = require("mysql");
 const app = express();
 const PORT = 3000;
 
-var cnnData;
-
 var connection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -17,11 +15,10 @@ connection.connect((err) => {
   if (err) throw err;
   console.log("Connected!");
 
-  connection.query("SELECT * FROM news.cnn;", (err, result) => {
-    if (err) throw err;
-    cnnData = result;
-  });
-  connection.end();
+  // let sql = "SELECT * FROM news.cnn;";
+  // 1 = 0, 1000
+  // 2 = 1000, 2000
+  // 3 = 2000, 3000
 });
 
 app.use(function (req, resp, next) {
@@ -34,8 +31,24 @@ app.use(function (req, resp, next) {
   next();
 });
 
-app.get("/api/getCNN", function (req, resp) {
+app.get("/api/getCNN/", function (req, resp) {
+  let sql, cnnData;
+
+  if (req.query.page == 1) {
+    sql = "SELECT * FROM news.cnn ORDER BY date LIMIT 0,1000";
+  } else {
+    sql = "SELECT * FROM news.cnn;";
+  }
+
+  console.log(sql);
+
+  connection.query(sql, async (err, result) => {
+    if (err) throw err;
+    cnnData = await result;
+  });
+  console.log(cnnData); // undefined, why?
   resp.send(cnnData);
+  connection.end();
 });
 
 const server = app.listen(PORT, () => {
