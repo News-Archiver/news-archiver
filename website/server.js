@@ -4,6 +4,8 @@ const mysql = require("mysql");
 const app = express();
 const PORT = 3000;
 
+var cnnDataLength;
+
 var connection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -15,10 +17,10 @@ connection.connect((err) => {
   if (err) throw err;
   console.log("Connected!");
 
-  // let sql = "SELECT * FROM news.cnn;";
-  // 1 = 0, 1000
-  // 2 = 1000, 2000
-  // 3 = 2000, 3000
+  connection.query("SELECT * FROM news.cnn;", (error, elements) => {
+    if (error) throw error;
+    cnnDataLength = elements.length;
+  });
 });
 
 app.use(function (req, resp, next) {
@@ -31,24 +33,28 @@ app.use(function (req, resp, next) {
   next();
 });
 
-app.get("/api/getCNN/", function (req, resp) {
-  let sql, cnnData;
+app.get("/api/getCNN/", async function (req, resp) {
+  let sql;
 
+  req.query.page = req.query.page * 1000;
   if (req.query.page == 1) {
-    sql = "SELECT * FROM news.cnn ORDER BY date LIMIT 0,1000";
-  } else {
-    sql = "SELECT * FROM news.cnn;";
+    sql = `SELECT * FROM news.cnn ORDER BY date LIMIT 0,${req.query.page};`;
+  } else if (req.query.page > 1) {
+    let offset = req.query.page - 1000;
+    sql = `SELECT * FROM news.cnn ORDER BY date LIMIT ${offset},${req.query.page};`;
   }
 
-  console.log(sql);
-
-  connection.query(sql, async (err, result) => {
-    if (err) throw err;
-    cnnData = await result;
+  const cnnData = await new Promise((resolve, reject) => {
+    connection.query(sql, (error, elements) => {
+      if (error) {
+        return reject(error);
+      }
+      return resolve(elements);
+    });
   });
-  console.log(cnnData); // undefined, why?
+
   resp.send(cnnData);
-  connection.end();
+  // await connection.end();
 });
 
 const server = app.listen(PORT, () => {
