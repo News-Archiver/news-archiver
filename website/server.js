@@ -1,5 +1,6 @@
 const express = require("express");
 const mysql = require("mysql");
+require("dotenv").config();
 
 const app = express();
 const PORT = 3000;
@@ -7,10 +8,10 @@ const PORT = 3000;
 var cnnDataLength;
 
 var connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "root",
-  database: "news",
+  host: process.env.host,
+  user: process.env.user,
+  password: process.env.password,
+  database: process.env.database,
 });
 
 connection.connect((err) => {
@@ -42,6 +43,8 @@ app.get("/api/getCNN/", async function (req, resp) {
   } else if (req.query.page > 1) {
     let offset = req.query.page - 1000;
     sql = `SELECT * FROM news.cnn ORDER BY date LIMIT ${offset},${req.query.page};`;
+  } else {
+    resp.send(`<pre>Mention page number "/api/getCNN?page={2}"<pre>`);
   }
 
   const cnnData = await new Promise((resolve, reject) => {
