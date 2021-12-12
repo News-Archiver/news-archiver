@@ -13,9 +13,9 @@ function App() {
   console.log(pageNum);
 
   const FetchMoreData = () => {
-    if (cnnList.length >= 5000) {
-      sethasMore(false);
-    }
+    // if (cnnList.length >= 5000) {
+    //   sethasMore(false);
+    // }
     setpageNum(pageNum + 1);
     return pageNum;
   };
