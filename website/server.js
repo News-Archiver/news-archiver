@@ -44,7 +44,19 @@ app.get("/api/getCNN/", async function (req, resp) {
     let offset = req.query.page - 1000;
     sql = `SELECT * FROM news.cnn ORDER BY date LIMIT ${offset},${req.query.page};`;
   } else {
-    resp.send(`<pre>Mention page number "/api/getCNN?page={2}"<pre>`);
+    resp.send(`<!DOCTYPE html>
+               <html lang="en">
+
+               <head>
+                <meta charset="utf-8">
+                <title>Error</title>
+               </head>
+
+              <body>
+                <pre>Cannot GET /api/getCNN</pre>
+              </body>
+
+              </html>`);
   }
 
   const cnnData = await new Promise((resolve, reject) => {
@@ -56,7 +68,7 @@ app.get("/api/getCNN/", async function (req, resp) {
     });
   });
 
-  resp.send(cnnData);
+  resp.send({ cnnData });
   // await connection.end();
 });
 
