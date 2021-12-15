@@ -31,7 +31,6 @@ function App() {
         if (cnnList.length === key + 1) {
           return (
             <p ref={lastCnnElementRef} key={key}>
-              {key}
               <a href={val.link}>{val.headline}</a>
             </p>
           );
