@@ -24,6 +24,9 @@ connection.connect((err) => {
   });
 });
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(function (req, resp, next) {
   resp.header("Access-Control-Allow-Origin", "*");
   resp.header("Access-Control-Allow-Methods", "GET, PUT, POST");
@@ -68,7 +71,7 @@ app.get("/api/getCNN/", async function (req, resp) {
     });
   });
 
-  resp.send({ cnnData });
+  resp.send(cnnData);
   // await connection.end();
 });
 
