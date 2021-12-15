@@ -3,7 +3,6 @@ const mysql = require("mysql");
 require("dotenv").config();
 
 const app = express();
-const PORT = 3000;
 
 var cnnDataLength;
 
@@ -75,6 +74,7 @@ app.get("/api/getCNN/", async function (req, resp) {
   // await connection.end();
 });
 
+const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
   console.log(`Server running http://localhost:${server.address().port}`);
 });
