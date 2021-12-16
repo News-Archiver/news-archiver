@@ -131,8 +131,6 @@ axios.get(yearURL).then(async ({ data }) => {
       console.log(err.message);
     }
   });
-  console.log("hello");
-
   connection.end();
   process.exit();
 });

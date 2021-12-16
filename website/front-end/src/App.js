@@ -28,15 +28,18 @@ function App() {
       <h1>🚀💥CNN Archive💥🚀</h1>
       <hr />
       {cnnList.map((val, key) => {
+        const sliceDate = val.date.slice(0, 10);
         if (cnnList.length === key + 1) {
           return (
             <p ref={lastCnnElementRef} key={key}>
+              {sliceDate}
               <a href={val.link}>{val.headline}</a>
             </p>
           );
         } else {
           return (
             <p key={key}>
+              {sliceDate}
               <a href={val.link}>{val.headline}</a>
             </p>
           );
