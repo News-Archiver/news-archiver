@@ -1,6 +1,8 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const mysql = require("mysql");
+const path = require("path");
+const fs = require("fs");
 
 const baseURL = "https://edition.cnn.com";
 const yearURL = `${baseURL}/sitemap.html`;
@@ -23,7 +25,8 @@ connection.connect((err) => {
                         headline TEXT,
                         link TEXT,
                         date DATE,
-                        month TEXT
+                        month TEXT,
+                        imglink TEXT
                     )`;
 
   connection.query(createCNN, function (err) {
@@ -52,12 +55,22 @@ const callExtractContent = (link, month) => {
 
     for (let i = 0; i < save.length; i++) {
       let { headline, link, date, month } = save[i];
+      let imglink;
       headline = headline.replace(reg, "'");
       link = link.replace(reg, "'");
       date = date.replace(reg, "'");
       month = month.replace(reg, "'");
 
-      var sql = `INSERT INTO cnn (headline, link, date, month) VALUES ("${headline}", "${link}", "${date}", "${month}");`;
+      await axios.get(link).then(async ({ data }) => {
+        const $ = cheerio.load(data);
+        const content = await getImage($);
+        imglink = content[0].img;
+        // imglink = await downloadImage(content[0].img);
+      });
+
+      console.log(imglink);
+
+      var sql = `INSERT INTO cnn (headline, link, date, month, imglink) VALUES ("${headline}", "${link}", "${date}", "${month}", "${imglink}");`;
       console.log(sql);
 
       await new Promise((resolve, reject) => {
@@ -110,6 +123,16 @@ const extractContent = ($, month) =>
         date: $product.find('span[class="date"]').text(),
         headline: link.text(),
         month: month,
+      };
+    })
+    .toArray();
+
+const getImage = ($) =>
+  $(".l-container")
+    .map((_, product) => {
+      const $product = $(product);
+      return {
+        img: `https:${$product.find("img").attr("data-src-large")}`,
       };
     })
     .toArray();
