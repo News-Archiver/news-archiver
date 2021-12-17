@@ -156,4 +156,7 @@ axios.get(yearURL).then(async ({ data }) => {
   });
   connection.end();
   process.exit();
+}).catch(error => {
+  console.error(error instanceof Error ? error.stack : error);
+  process.exit(1);
 });
