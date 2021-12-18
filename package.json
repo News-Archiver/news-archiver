@@ -5,12 +5,12 @@
   "scripts": {
     "start": "node website/server.js",
     "dev": "nodemon website/server.js",
+    "bot": "node scraping-worker/cnn.js",
     "format": "prettier --write .",
     "test": "jest"
   },
   "dependencies": {
     "dotenv": "^10.0.0",
-    "ejs": "^3.1.6",
     "express": "^4.17.1",
     "mysql": "^2.18.1"
   },
