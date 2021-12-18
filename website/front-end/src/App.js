@@ -29,19 +29,27 @@ function App() {
       <hr />
       {cnnList.map((val, key) => {
         const sliceDate = val.date.slice(0, 10);
+        if (val.imgalt === "undefined") {
+          val.imgalt = "No image for this article";
+          val.imglink = "#";
+        }
         if (cnnList.length === key + 1) {
           return (
-            <p ref={lastCnnElementRef} key={key}>
-              {sliceDate}
-              <a href={val.link}>{val.headline}</a>
-            </p>
+            <div ref={lastCnnElementRef} key={key}>
+              <img src={val.imglink} alt={val.imgalt} />
+              <p>
+                {sliceDate} <a href={val.link}>{val.headline}</a>
+              </p>
+            </div>
           );
         } else {
           return (
-            <p key={key}>
-              {sliceDate}
-              <a href={val.link}>{val.headline}</a>
-            </p>
+            <div key={key}>
+              <img src={val.imglink} alt={val.imgalt} />
+              <p>
+                {sliceDate} <a href={val.link}>{val.headline}</a>
+              </p>
+            </div>
           );
         }
       })}
