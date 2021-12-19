@@ -40,7 +40,9 @@ function App() {
                 key={key}
                 className="max-w-sm rounded overflow-hidden shadow-lg mb-4"
               >
-                <img className="w-full" src={val.imglink} alt={val.imgalt} />
+                <a href={val.link}>
+                  <img className="w-full" src={val.imglink} alt={val.imgalt} />
+                </a>
                 <div className="px-6 py-4">
                   <div className="font-bold text-xl mb-2">
                     <a href={val.link}>{val.headline}</a>
@@ -62,7 +64,9 @@ function App() {
                 key={key}
                 className="max-w-sm rounded overflow-hidden shadow-lg mb-4"
               >
-                <img className="w-full" src={val.imglink} alt={val.imgalt} />
+                <a href={val.link}>
+                  <img className="w-full" src={val.imglink} alt={val.imgalt} />
+                </a>
                 <div className="px-6 py-4">
                   <div className="font-bold text-xl mb-2">
                     <a href={val.link}>{val.headline}</a>
