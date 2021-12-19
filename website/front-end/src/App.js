@@ -26,15 +26,15 @@ function App() {
     <>
       <h1 className="text-2xl">🚀💥CNN Archive💥🚀</h1>
       <hr />
-      {cnnList.map((val, key) => {
-        const sliceDate = val.date.slice(0, 10);
-        if (val.imgalt === "undefined") {
-          val.imgalt = "No image for this article";
-          val.imglink = "#";
-        }
-        if (cnnList.length === key + 1) {
-          return (
-            <div className="flex flex-row">
+      <div className="grid grid-cols-4 gap-4">
+        {cnnList.map((val, key) => {
+          const sliceDate = val.date.slice(0, 10);
+          if (val.imgalt === "undefined") {
+            val.imgalt = "No image for this article";
+            val.imglink = "#";
+          }
+          if (cnnList.length === key + 1) {
+            return (
               <div
                 ref={lastCnnElementRef}
                 key={key}
@@ -55,11 +55,9 @@ function App() {
                   </span>
                 </div>
               </div>
-            </div>
-          );
-        } else {
-          return (
-            <div className="flex flex-row">
+            );
+          } else {
+            return (
               <div
                 key={key}
                 className="max-w-sm rounded overflow-hidden shadow-lg mb-4"
@@ -79,10 +77,10 @@ function App() {
                   </span>
                 </div>
               </div>
-            </div>
-          );
-        }
-      })}
+            );
+          }
+        })}
+      </div>
       <div>{loading && "Loading..."}</div>
     </>
   );
