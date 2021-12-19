@@ -1,8 +1,6 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const mysql = require("mysql");
-const path = require("path");
-const fs = require("fs");
 
 const baseURL = "https://edition.cnn.com";
 const yearURL = `${baseURL}/sitemap.html`;
@@ -26,7 +24,8 @@ connection.connect((err) => {
                         link TEXT,
                         date DATE,
                         month TEXT,
-                        imglink TEXT
+                        imglink TEXT,
+                        imgalt TEXT
                     )`;
 
   connection.query(createCNN, function (err) {
@@ -47,6 +46,20 @@ const extractYearPage = ($) =>
     })
     .toArray();
 
+async function saveToDB(headline, link, date, month, imgLink, imgAlt) {
+  var sql = `INSERT INTO cnn (headline, link, date, month, imglink, imgalt) VALUES ("${headline}", "${link}", "${date}", "${month}", "${imgLink}", "${imgAlt}");`;
+  console.log(sql);
+
+  await new Promise((resolve, reject) => {
+    connection.query(sql, (error, elements) => {
+      if (error) {
+        return reject(error);
+      }
+      return resolve(elements);
+    });
+  });
+}
+
 const callExtractContent = (link, month) => {
   return axios.get(link).then(async ({ data }) => {
     const $ = cheerio.load(data);
@@ -54,33 +67,42 @@ const callExtractContent = (link, month) => {
     let reg = /("|'|`)/gm;
 
     for (let i = 0; i < save.length; i++) {
+      let imgLink, imgAlt;
       let { headline, link, date, month } = save[i];
-      let imglink;
+
       headline = headline.replace(reg, "'");
       link = link.replace(reg, "'");
       date = date.replace(reg, "'");
       month = month.replace(reg, "'");
 
-      await axios.get(link).then(async ({ data }) => {
-        const $ = cheerio.load(data);
-        const content = await getImage($);
-        imglink = content[0].img;
-        // imglink = await downloadImage(content[0].img);
-      });
+      console.log(`Link ${link}`);
 
-      console.log(imglink);
+      await axios
+        .get(link)
+        .then(async ({ data }) => {
+          const $ = cheerio.load(data);
+          const content = await getImage($);
 
-      var sql = `INSERT INTO cnn (headline, link, date, month, imglink) VALUES ("${headline}", "${link}", "${date}", "${month}", "${imglink}");`;
-      console.log(sql);
-
-      await new Promise((resolve, reject) => {
-        connection.query(sql, (error, elements) => {
-          if (error) {
-            return reject(error);
+          if (content.length === 0) {
+            imgLink = "https:undefined";
+            imgAlt = "undefined";
+          } else {
+            imgLink = content[0].img;
+            imgAlt = content[0].alt;
           }
-          return resolve(elements);
+
+          if (imgLink === "https:undefined") imgAlt = "undefined";
+        })
+        .catch((error) => {
+          if (
+            error.response.status === 500 &&
+            error.response.statusText === "Internal Server Error"
+          ) {
+            return;
+          }
         });
-      });
+
+      await saveToDB(headline, link, date, month, imgLink, imgAlt);
     }
   });
 };
@@ -132,31 +154,42 @@ const getImage = ($) =>
     .map((_, product) => {
       const $product = $(product);
       return {
-        img: `https:${$product.find("img").attr("data-src-large")}`,
+        img: `https:${$product.find("img").attr("data-src-small")}`,
+        alt: $product.find("img").attr("alt"),
       };
     })
     .toArray();
 
-axios.get(yearURL).then(async ({ data }) => {
-  const $ = cheerio.load(data);
-
-  const yearShortLinks = await extractYearPage($);
-
-  for (var i = 0; i < yearShortLinks.length; i++) {
-    const yearFullLinks = yearShortLinks[i]["year_link"];
-    await subMonthsLink(yearFullLinks);
-  }
+async function removeDuplicate() {
   let deleteDuplicate =
     "DELETE t1 FROM news.cnn t1 INNER JOIN news.cnn t2 WHERE t1.id < t2.id AND t1.link = t2.link;";
 
-  connection.query(deleteDuplicate, function (err) {
-    if (err) {
-      console.log(err.message);
-    }
+  await new Promise((resolve, reject) => {
+    connection.query(deleteDuplicate, (error, elements) => {
+      if (error) {
+        return reject(error);
+      }
+      return resolve(elements);
+    });
   });
-  connection.end();
-  process.exit();
-}).catch(error => {
-  console.error(error instanceof Error ? error.stack : error);
-  process.exit(1);
-});
+}
+
+axios
+  .get(yearURL)
+  .then(async ({ data }) => {
+    const $ = cheerio.load(data);
+
+    const yearShortLinks = await extractYearPage($);
+
+    for (var i = 0; i < yearShortLinks.length; i++) {
+      const yearFullLinks = yearShortLinks[i]["year_link"];
+      await subMonthsLink(yearFullLinks);
+    }
+    // await removeDuplicate();
+    connection.end();
+    process.exit();
+  })
+  .catch((error) => {
+    console.error(error instanceof Error ? error.stack : error);
+    process.exit(1);
+  });

@@ -42,23 +42,31 @@ const callExtractContent = (link, month) => {
       date = date.replace(reg, "'");
       month = month.replace(reg, "'");
 
-      await axios.get(link).then(async ({ data }) => {
-        const $ = cheerio.load(data);
-        const content = await getImage($);
-        if (content.length === 0) {
-          imgLink = "https:undefined";
-          imgAlt = "undefined";
-        } else {
-          imgLink = content[0].img;
-          imgAlt = content[0].alt;
-        }
-      });
-
       console.log(`Link ${link}`);
+      await axios
+        .get(link)
+        .then(async ({ data }) => {
+          const $ = cheerio.load(data);
+          const content = await getImage($);
+          if (content.length === 0) {
+            imgLink = "https:undefined";
+            imgAlt = "undefined";
+          } else {
+            imgLink = content[0].img;
+            imgAlt = content[0].alt;
+          }
+        })
+        .catch((error) => {
+          if (
+            error.response.status === 500 &&
+            error.response.statusText === "Internal Server Error"
+          ) {
+            return;
+          }
+        });
+
       var sql = `INSERT INTO cnn (headline, link, date, month, imglink, imgalt) VALUES ("${headline}", "${link}", "${date}", "${month}", "${imgLink}", "${imgAlt}");`;
       console.log(sql);
-
-      // saveToDB(headline, link, date, month, imgLink, imgAlt);
     }
   });
 };
