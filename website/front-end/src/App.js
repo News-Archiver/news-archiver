@@ -1,7 +1,6 @@
+import "./App.css";
 import React, { useState, useRef, useCallback } from "react";
 import FetchMoreData from "./components/FetchMoreData";
-
-import "./App.css";
 
 function App() {
   const [pageNum, setPageNum] = useState(1);
@@ -25,7 +24,7 @@ function App() {
 
   return (
     <>
-      <h1>🚀💥CNN Archive💥🚀</h1>
+      <h1 className="text-2xl">🚀💥CNN Archive💥🚀</h1>
       <hr />
       {cnnList.map((val, key) => {
         const sliceDate = val.date.slice(0, 10);
@@ -35,20 +34,51 @@ function App() {
         }
         if (cnnList.length === key + 1) {
           return (
-            <div ref={lastCnnElementRef} key={key}>
-              <img src={val.imglink} alt={val.imgalt} />
-              <p>
-                {sliceDate} <a href={val.link}>{val.headline}</a>
-              </p>
+            <div className="flex flex-row">
+              <div
+                ref={lastCnnElementRef}
+                key={key}
+                className="max-w-sm rounded overflow-hidden shadow-lg mb-4"
+              >
+                <img className="w-full" src={val.imglink} alt={val.imgalt} />
+                <div className="px-6 py-4">
+                  <div className="font-bold text-xl mb-2">
+                    <a href={val.link}>{val.headline}</a>
+                  </div>
+                </div>
+                <div className="px-6 pt-4 pb-2">
+                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                    {sliceDate}
+                  </span>
+                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                    {val.month}
+                  </span>
+                </div>
+              </div>
             </div>
           );
         } else {
           return (
-            <div key={key}>
-              <img src={val.imglink} alt={val.imgalt} />
-              <p>
-                {sliceDate} <a href={val.link}>{val.headline}</a>
-              </p>
+            <div className="flex flex-row">
+              <div
+                key={key}
+                className="max-w-sm rounded overflow-hidden shadow-lg mb-4"
+              >
+                <img className="w-full" src={val.imglink} alt={val.imgalt} />
+                <div className="px-6 py-4">
+                  <div className="font-bold text-xl mb-2">
+                    <a href={val.link}>{val.headline}</a>
+                  </div>
+                </div>
+                <div className="px-6 pt-4 pb-2">
+                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                    {sliceDate}
+                  </span>
+                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                    {val.month}
+                  </span>
+                </div>
+              </div>
             </div>
           );
         }
