@@ -94,12 +94,8 @@ const callExtractContent = (link, month) => {
           if (imgLink === "https:undefined") imgAlt = "undefined";
         })
         .catch((error) => {
-          if (
-            error.response.status === 500 &&
-            error.response.statusText === "Internal Server Error"
-          ) {
-            return;
-          }
+          console.log(`ERROR: ${error}`);
+          return;
         });
 
       await saveToDB(headline, link, date, month, imgLink, imgAlt);

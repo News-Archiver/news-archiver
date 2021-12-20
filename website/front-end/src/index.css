@@ -7,7 +7,7 @@ a:hover {
 }
 
 .card {
-  transition: transform .3s;
+  transition: transform 0.3s;
 }
 
 .card:hover {
