@@ -26,7 +26,7 @@ function App() {
     <>
       <h1 className="text-2xl">🚀💥CNN Archive💥🚀</h1>
       <hr />
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-5 gap-5 mt-4">
         {cnnList.map((val, key) => {
           const sliceDate = val.date.slice(0, 10);
           if (val.imgalt === "undefined") {
@@ -38,7 +38,7 @@ function App() {
               <div
                 ref={lastCnnElementRef}
                 key={key}
-                className="max-w-sm rounded overflow-hidden shadow-lg mb-4"
+                className="max-w-sm rounded overflow-hidden shadow-lg mb-4 card"
               >
                 <a href={val.link}>
                   <img className="w-full" src={val.imglink} alt={val.imgalt} />
@@ -62,7 +62,7 @@ function App() {
             return (
               <div
                 key={key}
-                className="max-w-sm rounded overflow-hidden shadow-lg mb-4"
+                className="max-w-sm rounded overflow-hidden shadow-lg mb-4 card"
               >
                 <a href={val.link}>
                   <img className="w-full" src={val.imglink} alt={val.imgalt} />
