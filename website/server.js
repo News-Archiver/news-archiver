@@ -41,10 +41,10 @@ app.get("/api/getCNN/", async function (req, resp) {
 
   req.query.page = req.query.page * 50;
   if (req.query.page == 1) {
-    sql = `SELECT * FROM news.cnn ORDER BY date LIMIT 0,${req.query.page};`;
+    sql = `SELECT * FROM news.cnn ORDER BY date DESC LIMIT 0,${req.query.page};`;
   } else if (req.query.page > 1) {
     let offset = req.query.page - 50;
-    sql = `SELECT * FROM news.cnn ORDER BY date LIMIT ${offset},${req.query.page};`;
+    sql = `SELECT * FROM news.cnn ORDER BY date DESC LIMIT ${offset},${req.query.page};`;
   } else {
     resp.send(`<!DOCTYPE html>
                <html lang="en">
