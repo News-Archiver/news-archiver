@@ -1,6 +1,7 @@
 import "./App.css";
 import React, { useState, useRef, useCallback } from "react";
 import FetchMoreData from "./components/FetchMoreData";
+import Marquee from "react-fast-marquee";
 
 function App() {
   const [pageNum, setPageNum] = useState(1);
@@ -24,7 +25,7 @@ function App() {
 
   return (
     <>
-      <h1 className="text-2xl">🚀💥CNN Archive💥🚀</h1>
+      <Marquee className="text-6xl">🚀💥CNN Archive💥🚀</Marquee>
       <hr />
       <div className="grid grid-cols-5 gap-5 mt-4">
         {cnnList.map((val, key) => {
