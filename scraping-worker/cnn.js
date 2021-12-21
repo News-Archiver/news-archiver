@@ -94,7 +94,7 @@ const callExtractContent = (link, month) => {
           if (imgLink === "https:undefined") imgAlt = "undefined";
         })
         .catch((error) => {
-          console.log(`ERROR: ${error}`);
+          console.log(error);
           return;
         });
 
