@@ -113,7 +113,9 @@ const subMonthsLink = (link) => {
     let promises = [];
     for (var i = 0; i < yearMonthLink.length; i++) {
       const fullMonthLink = baseURL + yearMonthLink[i]["link"];
-      promises.push(callExtractContent(fullMonthLink, yearMonthLink[i]["month"]));
+      promises.push(
+        callExtractContent(fullMonthLink, yearMonthLink[i]["month"])
+      );
     }
     await Promise.all(promises);
   });
