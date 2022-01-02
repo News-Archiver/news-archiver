@@ -108,9 +108,6 @@ const callExtractContent = (link, month) => {
 
           if (imgLink === "https:undefined") imgAlt = "undefined";
 
-          console.log("Request response:", data);
-
-          // Interacting with the store, see `localForage` API.
           const length = await cache.store.length();
 
           console.log("Cache store length:", length);
@@ -128,19 +125,21 @@ const callExtractContent = (link, month) => {
 const subMonthsLink = (link) => {
   const fullYearLink = baseURL + link;
 
-  return axios.get(fullYearLink).then(async ({ data }) => {
-    const $ = cheerio.load(data);
-    const yearMonthLink = await extractMonthsLink($);
+  return api({ url: `${fullYearLink}`, method: "get" }).then(
+    async ({ data }) => {
+      const $ = cheerio.load(data);
+      const yearMonthLink = await extractMonthsLink($);
 
-    let promises = [];
-    for (var i = 0; i < yearMonthLink.length; i++) {
-      const fullMonthLink = baseURL + yearMonthLink[i]["link"];
-      promises.push(
-        callExtractContent(fullMonthLink, yearMonthLink[i]["month"])
-      );
+      let promises = [];
+      for (var i = 0; i < yearMonthLink.length; i++) {
+        const fullMonthLink = baseURL + yearMonthLink[i]["link"];
+        promises.push(
+          callExtractContent(fullMonthLink, yearMonthLink[i]["month"])
+        );
+      }
+      await Promise.all(promises);
     }
-    await Promise.all(promises);
-  });
+  );
 };
 
 const extractMonthsLink = ($) =>
@@ -196,8 +195,7 @@ async function removeDuplicate() {
   });
 }
 
-axios
-  .get(yearURL)
+api({ url: `${yearURL}`, method: "get" })
   .then(async ({ data }) => {
     const $ = cheerio.load(data);
 
