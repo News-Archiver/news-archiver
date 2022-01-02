@@ -2,8 +2,18 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const mysql = require("mysql");
 
+const axiosCache = require("axios-cache-adapter");
+
 const baseURL = "https://edition.cnn.com";
 const yearURL = `${baseURL}/sitemap.html`;
+
+const cache = axiosCache.setupCache({
+  maxAge: 15 * 60 * 1000,
+});
+
+const api = axios.create({
+  adapter: cache.adapter,
+});
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -61,7 +71,10 @@ async function saveToDB(headline, link, date, month, imgLink, imgAlt) {
 }
 
 const callExtractContent = (link, month) => {
-  return axios.get(link).then(async ({ data }) => {
+  return api({
+    url: `${link}`,
+    method: "get",
+  }).then(async ({ data }) => {
     const $ = cheerio.load(data);
     let save = await extractContent($, month);
     let reg = /("|'|`)/gm;
@@ -77,8 +90,10 @@ const callExtractContent = (link, month) => {
 
       console.log(`Link ${link}`);
 
-      await axios
-        .get(link)
+      await api({
+        url: `${link}`,
+        method: "get",
+      })
         .then(async ({ data }) => {
           const $ = cheerio.load(data);
           const content = await getImage($);
@@ -92,6 +107,13 @@ const callExtractContent = (link, month) => {
           }
 
           if (imgLink === "https:undefined") imgAlt = "undefined";
+
+          console.log("Request response:", data);
+
+          // Interacting with the store, see `localForage` API.
+          const length = await cache.store.length();
+
+          console.log("Cache store length:", length);
         })
         .catch((error) => {
           console.log(error);
@@ -180,6 +202,10 @@ axios
     const $ = cheerio.load(data);
 
     const yearShortLinks = await extractYearPage($);
+
+    const length = await cache.store.length();
+
+    console.log("Cache store length:", length);
 
     for (var i = 0; i < yearShortLinks.length; i++) {
       const yearFullLinks = yearShortLinks[i]["year_link"];
