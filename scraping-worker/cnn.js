@@ -90,10 +90,13 @@ const callExtractContent = (link, month) => {
 
       console.log(`Link ${link}`);
 
-      await api({
-        url: `${link}`,
-        method: "get",
-      })
+      const length = await cache.store.length();
+      // console.log(cache.store);
+
+      console.log("Cache store length:", length);
+
+      await axios
+        .get(link)
         .then(async ({ data }) => {
           const $ = cheerio.load(data);
           const content = await getImage($);
@@ -107,10 +110,6 @@ const callExtractContent = (link, month) => {
           }
 
           if (imgLink === "https:undefined") imgAlt = "undefined";
-
-          const length = await cache.store.length();
-
-          console.log("Cache store length:", length);
         })
         .catch((error) => {
           console.log(error);
@@ -125,21 +124,19 @@ const callExtractContent = (link, month) => {
 const subMonthsLink = (link) => {
   const fullYearLink = baseURL + link;
 
-  return api({ url: `${fullYearLink}`, method: "get" }).then(
-    async ({ data }) => {
-      const $ = cheerio.load(data);
-      const yearMonthLink = await extractMonthsLink($);
+  return axios.get(fullYearLink).then(async ({ data }) => {
+    const $ = cheerio.load(data);
+    const yearMonthLink = await extractMonthsLink($);
 
-      let promises = [];
-      for (var i = 0; i < yearMonthLink.length; i++) {
-        const fullMonthLink = baseURL + yearMonthLink[i]["link"];
-        promises.push(
-          callExtractContent(fullMonthLink, yearMonthLink[i]["month"])
-        );
-      }
-      await Promise.all(promises);
+    let promises = [];
+    for (var i = 0; i < yearMonthLink.length; i++) {
+      const fullMonthLink = baseURL + yearMonthLink[i]["link"];
+      promises.push(
+        callExtractContent(fullMonthLink, yearMonthLink[i]["month"])
+      );
     }
-  );
+    await Promise.all(promises);
+  });
 };
 
 const extractMonthsLink = ($) =>
@@ -195,15 +192,12 @@ async function removeDuplicate() {
   });
 }
 
-api({ url: `${yearURL}`, method: "get" })
+axios
+  .get(yearURL)
   .then(async ({ data }) => {
     const $ = cheerio.load(data);
 
     const yearShortLinks = await extractYearPage($);
-
-    const length = await cache.store.length();
-
-    console.log("Cache store length:", length);
 
     for (var i = 0; i < yearShortLinks.length; i++) {
       const yearFullLinks = yearShortLinks[i]["year_link"];
