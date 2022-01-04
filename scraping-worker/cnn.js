@@ -70,7 +70,7 @@ async function saveToDB(headline, link, date, month, imgLink, imgAlt) {
   });
 }
 
-async function getImgLinkFromDB(link) {
+async function getLinkFromDB() {
   let sql = "SELECT link FROM news.cnn;";
 
   return await new Promise((resolve, reject) => {
@@ -92,6 +92,9 @@ const callExtractContent = (link, month) => {
     let save = await extractContent($, month);
     let reg = /("|'|`)/gm;
 
+    let dataLink = await getLinkFromDB();
+    let imgLinkDB = dataLink.map((v) => v.link);
+
     for (let i = 0; i < save.length; i++) {
       let imgLink, imgAlt;
       let { headline, link, date, month } = save[i];
@@ -100,19 +103,6 @@ const callExtractContent = (link, month) => {
       link = link.replace(reg, "'");
       date = date.replace(reg, "'");
       month = month.replace(reg, "'");
-
-      let data = await getImgLinkFromDB(link);
-
-      let imgLinkDB = data.map((v) => v.link);
-
-      for (let j = 0; j < imgLinkDB.length; j++) {
-        let isDuplicateLink = link === imgLinkDB[j];
-
-        if (isDuplicateLink) {
-          console.log(`Duplicate, Didn't insert data, ${headline}`)
-          return;
-        }
-      }
 
       await axios
         .get(link)
@@ -135,7 +125,22 @@ const callExtractContent = (link, month) => {
           return;
         });
 
-      await saveToDB(headline, link, date, month, imgLink, imgAlt);
+      let isDuplicateLink;
+      for (let j = 0; j < imgLinkDB.length; j++) {
+        isDuplicateLink = link === imgLinkDB[j];
+
+        if (isDuplicateLink) {
+          console.log(`Duplicate, Didn't insert data, ${headline}`);
+          // no return here
+          continue;
+        }
+      }
+
+      if (isDuplicateLink) {
+        continue;
+      } else {
+        await saveToDB(headline, link, date, month, imgLink, imgAlt);
+      }
     }
   });
 };
@@ -150,6 +155,7 @@ const subMonthsLink = (link) => {
     let promises = [];
     for (var i = 0; i < yearMonthLink.length; i++) {
       const fullMonthLink = baseURL + yearMonthLink[i]["link"];
+      callExtractContent(fullMonthLink, yearMonthLink[i]["month"]);
       promises.push(
         callExtractContent(fullMonthLink, yearMonthLink[i]["month"])
       );
