@@ -35,7 +35,8 @@ connection.connect((err) => {
                         date DATE,
                         month TEXT,
                         imglink TEXT,
-                        imgalt TEXT)`;
+                        imgalt TEXT
+                    )`;
 
   connection.query(createCNN, function (err) {
     if (err) {
@@ -70,7 +71,7 @@ async function saveToDB(headline, link, date, month, imgLink, imgAlt) {
 }
 
 async function getImgLinkFromDB(link) {
-  let sql = "SELECT link FROM news.cnn_real;";
+  let sql = "SELECT link FROM news.cnn;";
 
   return await new Promise((resolve, reject) => {
     connection.query(sql, (error, elements) => {
@@ -101,9 +102,9 @@ const callExtractContent = (link, month) => {
       month = month.replace(reg, "'");
 
       console.log(`Link ${link}`);
-      let data = await getImgLinkFromDB(link);
+      let hello = await getImgLinkFromDB(link);
 
-      let imgLinkDB = data.map((v) => v.link);
+      let imgLinkDB = hello.map((v) => v.link);
 
       for (let j = 0; j < imgLinkDB.length; j++) {
         let isDuplicateLink = link === imgLinkDB[j];
@@ -111,8 +112,10 @@ const callExtractContent = (link, month) => {
         if (isDuplicateLink) return;
       }
 
-      const length = await cache.store.length();
-      console.log("Cache store length:", length);
+      // const length = await cache.store.length();
+      // console.log(cache.store);
+
+      // console.log("Cache store length:", length);
 
       await axios
         .get(link)
