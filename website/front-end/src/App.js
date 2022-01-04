@@ -6,12 +6,12 @@ import Marquee from "react-fast-marquee";
 function App() {
   const [pageNum, setPageNum] = useState(1);
 
-  const { loading, cnnList, hasMore } = FetchMoreData(pageNum);
+  const { isloading, data, hasMore } = FetchMoreData(pageNum);
 
   const observer = useRef();
   const lastCnnElementRef = useCallback(
     (node) => {
-      if (loading) return;
+      if (isloading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMore) {
@@ -20,7 +20,7 @@ function App() {
       });
       if (node) observer.current.observe(node);
     },
-    [loading, hasMore]
+    [isloading, hasMore]
   );
 
   return (
@@ -28,13 +28,13 @@ function App() {
       <Marquee className="text-6xl">🚀💥CNN Archive💥🚀</Marquee>
       <hr />
       <div className="grid grid-cols-5 gap-5 mt-4">
-        {cnnList.map((val, key) => {
+        {data.map((val, key) => {
           const sliceDate = val.date.slice(0, 10);
           if (val.imgalt === "undefined") {
             val.imgalt = "No image for this article";
             val.imglink = "#";
           }
-          if (cnnList.length === key + 1) {
+          if (data.length === key + 1) {
             return (
               <div
                 ref={lastCnnElementRef}
@@ -86,7 +86,7 @@ function App() {
           }
         })}
       </div>
-      <div>{loading && "Loading..."}</div>
+      <div>{isloading && "Loading..."}</div>
     </>
   );
 }
