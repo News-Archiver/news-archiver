@@ -101,21 +101,18 @@ const callExtractContent = (link, month) => {
       date = date.replace(reg, "'");
       month = month.replace(reg, "'");
 
-      console.log(`Link ${link}`);
-      let hello = await getImgLinkFromDB(link);
+      let data = await getImgLinkFromDB(link);
 
-      let imgLinkDB = hello.map((v) => v.link);
+      let imgLinkDB = data.map((v) => v.link);
 
       for (let j = 0; j < imgLinkDB.length; j++) {
         let isDuplicateLink = link === imgLinkDB[j];
 
-        if (isDuplicateLink) return;
+        if (isDuplicateLink) {
+          console.log(`Duplicate, Didn't insert data, ${headline}`)
+          return;
+        }
       }
-
-      // const length = await cache.store.length();
-      // console.log(cache.store);
-
-      // console.log("Cache store length:", length);
 
       await axios
         .get(link)
