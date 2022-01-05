@@ -86,7 +86,10 @@ async function getArticleLinkFromDB() {
 
 async function getArticlesLinksFromDB() {
   const articlesLinks = await getArticleLinkFromDB();
-  return articlesLinks.map((articleLink) => articleLink.link);
+  const articlesLinksFromDB = articlesLinks.map(
+    (articleLink) => articleLink.link
+  );
+  return articlesLinksFromDB;
 }
 
 function regexReplace(headline, pageLink, date, month) {
@@ -133,11 +136,7 @@ const enterArticlePage = (monthLink, month) => {
     const $ = cheerio.load(data);
     const articles = await getArticlesHeadlines($, month);
 
-    // const articlesLinksFromDB = getArticlesLinksFromDB();
-    const articlesLinks = await getArticleLinkFromDB();
-    const articlesLinksFromDB = articlesLinks.map(
-      (articleLink) => articleLink.link
-    );
+    const articlesLinksFromDB = await getArticlesLinksFromDB();
 
     for (let i = 0; i < articles.length; i++) {
       let { headline, pageLink, date, month } = articles[i];
@@ -151,16 +150,14 @@ const enterArticlePage = (monthLink, month) => {
 
       let { imgLink, imgAlt } = await getImgAndAlt(pageLink);
 
-      if (!isDuplicateLink) {
-        await saveToDB(
-          article.headline,
-          article.pageLink,
-          article.date,
-          article.month,
-          imgLink,
-          imgAlt
-        );
-      }
+      await saveToDB(
+        article.headline,
+        article.pageLink,
+        article.date,
+        article.month,
+        imgLink,
+        imgAlt
+      );
     }
   });
 };
