@@ -123,7 +123,7 @@ async function getImgAndAlt(pageLink) {
     })
     .catch((error) => {
       console.log(error);
-      process.exit(1);
+      return;
     });
   return { imgLink, imgAlt };
 }
