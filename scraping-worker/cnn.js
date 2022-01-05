@@ -89,11 +89,11 @@ const callExtractContent = (link, month) => {
     method: "get",
   }).then(async ({ data }) => {
     const $ = cheerio.load(data);
-    let save = await extractContent($, month);
-    let reg = /("|'|`)/gm;
+    const save = await extractContent($, month);
+    const reg = /("|'|`)/gm;
 
-    let dataLink = await getLinkFromDB();
-    let imgLinkDB = dataLink.map((v) => v.link);
+    const dataLink = await getLinkFromDB();
+    const pageLinkDB = dataLink.map((v) => v.link);
 
     for (let i = 0; i < save.length; i++) {
       let imgLink, imgAlt;
@@ -125,20 +125,12 @@ const callExtractContent = (link, month) => {
           return;
         });
 
-      let isDuplicateLink;
-      for (let j = 0; j < imgLinkDB.length; j++) {
-        isDuplicateLink = link === imgLinkDB[j];
+      const even = (element) => element === link;
+      const isDuplicateLink = pageLinkDB.some(even);
 
-        if (isDuplicateLink) {
-          console.log(`Duplicate, Didn't insert data, ${headline}`);
-          // no return here
-          continue;
-        }
-      }
+      console.log(isDuplicateLink);
 
-      if (isDuplicateLink) {
-        continue;
-      } else {
+      if (!isDuplicateLink) {
         await saveToDB(headline, link, date, month, imgLink, imgAlt);
       }
     }
