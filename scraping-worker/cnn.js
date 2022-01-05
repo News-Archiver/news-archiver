@@ -104,6 +104,9 @@ const callExtractContent = (link, month) => {
       date = date.replace(reg, "'");
       month = month.replace(reg, "'");
 
+      const isDuplicateLink = pageLinkDB.some((element) => element === link);
+      if (isDuplicateLink) continue;
+
       await axios
         .get(link)
         .then(async ({ data }) => {
@@ -124,9 +127,6 @@ const callExtractContent = (link, month) => {
           console.log(error);
           return;
         });
-
-      const isDuplicateLink = pageLinkDB.some((element) => element === link);
-      console.log(isDuplicateLink);
 
       if (!isDuplicateLink) {
         await saveToDB(headline, link, date, month, imgLink, imgAlt);
