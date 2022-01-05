@@ -1,7 +1,6 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
 const mysql = require("mysql");
-
 const axiosCache = require("axios-cache-adapter");
 
 const baseURL = "https://edition.cnn.com";
@@ -192,20 +191,6 @@ const getImage = ($) =>
     })
     .toArray();
 
-async function removeDuplicate() {
-  let deleteDuplicate =
-    "DELETE t1 FROM news.cnn t1 INNER JOIN news.cnn t2 WHERE t1.id < t2.id AND t1.link = t2.link;";
-
-  await new Promise((resolve, reject) => {
-    connection.query(deleteDuplicate, (error, elements) => {
-      if (error) {
-        return reject(error);
-      }
-      return resolve(elements);
-    });
-  });
-}
-
 axios
   .get(yearURL)
   .then(async ({ data }) => {
@@ -217,7 +202,6 @@ axios
       const yearFullLinks = yearShortLinks[i]["year_link"];
       await subMonthsLink(yearFullLinks);
     }
-    // await removeDuplicate();
     connection.end();
     process.exit();
   })
