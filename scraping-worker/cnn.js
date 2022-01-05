@@ -58,7 +58,13 @@ const getYearLinks = ($) =>
     .toArray();
 
 async function saveToDB(headline, link, date, month, imgLink, imgAlt) {
-  var sql = `INSERT INTO cnn (headline, link, date, month, imglink, imgalt) VALUES (${connection.escape(headline)}, ${connection.escape(link)}, ${connection.escape(date)}, ${connection.escape(month)}, ${connection.escape(imgLink)}, ${connection.escape(imgAlt)});`;
+  var sql = `INSERT INTO cnn (headline, link, date, month, imglink, imgalt) VALUES (${connection.escape(
+    headline
+  )}, ${connection.escape(link)}, ${connection.escape(
+    date
+  )}, ${connection.escape(month)}, ${connection.escape(
+    imgLink
+  )}, ${connection.escape(imgAlt)});`;
   console.log(sql);
 
   await new Promise((resolve, reject) => {
@@ -114,7 +120,6 @@ async function getImgAndAlt(pageLink) {
 
             if (imgLink !== "https:undefined") break;
           }
-
         }
       }
 
@@ -133,8 +138,8 @@ const enterArticlePage = (monthLink, month) => {
     method: "get",
   }).then(async ({ data }) => {
     const $ = cheerio.load(data);
-    const articles = await getArticlesHeadlines($, month);
 
+    const articles = await getArticlesHeadlines($, month);
     const articlesLinksFromDB = await getArticlesLinksFromDB();
 
     for (let i = 0; i < articles.length; i++) {
@@ -147,14 +152,7 @@ const enterArticlePage = (monthLink, month) => {
 
       let { imgLink, imgAlt } = await getImgAndAlt(pageLink);
 
-      await saveToDB(
-        headline,
-        pageLink,
-        date,
-        month,
-        imgLink,
-        imgAlt
-      );
+      await saveToDB(headline, pageLink, date, month, imgLink, imgAlt);
     }
   });
 };
