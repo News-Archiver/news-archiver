@@ -106,6 +106,16 @@ async function getImgAndAlt(pageLink) {
       } else {
         imgLink = content[0].img;
         imgAlt = content[0].alt;
+
+        if (imgLink === "https:undefined") {
+          for (let i = 0; i < content.length; i++) {
+            imgLink = content[i].img;
+            imgAlt = content[i].alt;
+
+            if (imgLink !== "https:undefined") break;
+          }
+
+        }
       }
 
       if (imgLink === "https:undefined") imgAlt = "undefined";
