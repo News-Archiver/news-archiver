@@ -4,7 +4,7 @@ const mysql = require("mysql");
 const axiosCache = require("axios-cache-adapter");
 
 const baseURL = "https://edition.cnn.com";
-const yearURL = `${baseURL}/sitemap.html`;
+const sitemapURL = `${baseURL}/sitemap.html`;
 
 const cache = axiosCache.setupCache({
   maxAge: 15 * 60 * 1000,
@@ -44,13 +44,15 @@ connection.connect((err) => {
   });
 });
 
-const extractYearPage = ($) =>
+const getYearLinks = ($) =>
+  // This function is going through https://edition.cnn.com/sitemap.html ("Articles by Year")
+  // And returning back a URL -> https://edition.cnn.com/article/sitemap-2011.html (2011 to current year)
   $(".sitemaps-year-listing")
     .find("div:nth-child(1) > ul > li")
     .map((_, product) => {
       const $product = $(product);
       return {
-        year_link: $product.find("a").attr("href"),
+        year_link: `${baseURL}${$product.find("a").attr("href")}`,
       };
     })
     .toArray();
@@ -69,7 +71,7 @@ async function saveToDB(headline, link, date, month, imgLink, imgAlt) {
   });
 }
 
-async function getLinkFromDB() {
+async function getArticleLinkFromDB() {
   let sql = "SELECT link FROM news.cnn;";
 
   return await new Promise((resolve, reject) => {
@@ -82,97 +84,125 @@ async function getLinkFromDB() {
   });
 }
 
-const callExtractContent = (link, month) => {
+async function getArticlesLinksFromDB() {
+  const articlesLinks = await getArticleLinkFromDB();
+  return articlesLinks.map((articleLink) => articleLink.link);
+}
+
+function regexReplace(headline, pageLink, date, month) {
+  const reg = /("|'|`)/gm;
+
+  headline = headline.replace(reg, "'");
+  pageLink = pageLink.replace(reg, "'");
+  date = date.replace(reg, "'");
+  month = month.replace(reg, "'");
+
+  return { headline, pageLink, date, month };
+}
+
+async function getImgAndAlt(pageLink) {
+  let imgLink, imgAlt;
+  await axios
+    .get(pageLink)
+    .then(async ({ data }) => {
+      const $ = cheerio.load(data);
+      const content = await getImageFromParticularArticle($);
+
+      if (content.length === 0) {
+        imgLink = "https:undefined";
+        imgAlt = "undefined";
+      } else {
+        imgLink = content[0].img;
+        imgAlt = content[0].alt;
+      }
+
+      if (imgLink === "https:undefined") imgAlt = "undefined";
+    })
+    .catch((error) => {
+      console.log(error);
+      process.exit(1);
+    });
+  return { imgLink, imgAlt };
+}
+
+const enterArticlePage = (monthLink, month) => {
   return api({
-    url: `${link}`,
+    url: `${monthLink}`,
     method: "get",
   }).then(async ({ data }) => {
     const $ = cheerio.load(data);
-    const save = await extractContent($, month);
-    const reg = /("|'|`)/gm;
+    const articles = await getArticlesHeadlines($, month);
 
-    const dataLink = await getLinkFromDB();
-    const pageLinkDB = dataLink.map((v) => v.link);
+    // const articlesLinksFromDB = getArticlesLinksFromDB();
+    const articlesLinks = await getArticleLinkFromDB();
+    const articlesLinksFromDB = articlesLinks.map(
+      (articleLink) => articleLink.link
+    );
 
-    for (let i = 0; i < save.length; i++) {
-      let imgLink, imgAlt;
-      let { headline, link, date, month } = save[i];
+    for (let i = 0; i < articles.length; i++) {
+      let { headline, pageLink, date, month } = articles[i];
 
-      headline = headline.replace(reg, "'");
-      link = link.replace(reg, "'");
-      date = date.replace(reg, "'");
-      month = month.replace(reg, "'");
+      let article = regexReplace(headline, pageLink, date, month);
 
-      const isDuplicateLink = pageLinkDB.some((element) => element === link);
+      const isDuplicateLink = articlesLinksFromDB.some(
+        (element) => element === pageLink
+      );
       if (isDuplicateLink) continue;
 
-      await axios
-        .get(link)
-        .then(async ({ data }) => {
-          const $ = cheerio.load(data);
-          const content = await getImage($);
-
-          if (content.length === 0) {
-            imgLink = "https:undefined";
-            imgAlt = "undefined";
-          } else {
-            imgLink = content[0].img;
-            imgAlt = content[0].alt;
-          }
-
-          if (imgLink === "https:undefined") imgAlt = "undefined";
-        })
-        .catch((error) => {
-          console.log(error);
-          return;
-        });
+      let { imgLink, imgAlt } = await getImgAndAlt(pageLink);
 
       if (!isDuplicateLink) {
-        await saveToDB(headline, link, date, month, imgLink, imgAlt);
+        await saveToDB(
+          article.headline,
+          article.pageLink,
+          article.date,
+          article.month,
+          imgLink,
+          imgAlt
+        );
       }
     }
   });
 };
 
-const subMonthsLink = (link) => {
-  const fullYearLink = baseURL + link;
-
-  return axios.get(fullYearLink).then(async ({ data }) => {
+const getMonthsFromYearPage = (yearLink) => {
+  // https://edition.cnn.com/article/sitemap-2011.html this link contain all the months inside that particular year
+  return axios.get(yearLink).then(async ({ data }) => {
     const $ = cheerio.load(data);
-    const yearMonthLink = await extractMonthsLink($);
+    const monthsLinks = await getMonthsLinksFromYearPage($);
 
     let promises = [];
-    for (var i = 0; i < yearMonthLink.length; i++) {
-      const fullMonthLink = baseURL + yearMonthLink[i]["link"];
+    for (var i = 0; i < monthsLinks.length; i++) {
       promises.push(
-        callExtractContent(fullMonthLink, yearMonthLink[i]["month"])
+        enterArticlePage(monthsLinks[i]["link"], monthsLinks[i]["month"])
       );
     }
     await Promise.all(promises);
   });
 };
 
-const extractMonthsLink = ($) =>
+const getMonthsLinksFromYearPage = ($) =>
+  // This function get link -> https://edition.cnn.com/article/sitemap-2011-8.html (2011-8 is August of 2011)
   $(".sitemap-month")
     .find("li")
     .map((_, product) => {
       const $product = $(product);
       const link = $product.find("a");
       return {
-        link: link.attr("href"),
+        link: `${baseURL}${link.attr("href")}`,
         month: link.text(),
       };
     })
     .toArray();
 
-const extractContent = ($, month) =>
+const getArticlesHeadlines = ($, month) =>
   $(".sitemap-entry")
     .find("ul > li")
     .map((_, product) => {
       const $product = $(product);
       const link = $product.find("a");
       return {
-        link: link.attr("href"),
+        pageLink: link.attr("href"),
         date: $product.find('span[class="date"]').text(),
         headline: link.text(),
         month: month,
@@ -180,7 +210,7 @@ const extractContent = ($, month) =>
     })
     .toArray();
 
-const getImage = ($) =>
+const getImageFromParticularArticle = ($) =>
   $(".l-container")
     .map((_, product) => {
       const $product = $(product);
@@ -192,16 +222,16 @@ const getImage = ($) =>
     .toArray();
 
 axios
-  .get(yearURL)
+  .get(sitemapURL)
   .then(async ({ data }) => {
     const $ = cheerio.load(data);
+    const yearlinks = await getYearLinks($);
 
-    const yearShortLinks = await extractYearPage($);
-
-    for (var i = 0; i < yearShortLinks.length; i++) {
-      const yearFullLinks = yearShortLinks[i]["year_link"];
-      await subMonthsLink(yearFullLinks);
+    for (var i = 0; i < yearlinks.length; i++) {
+      const yearLink = yearlinks[i]["year_link"];
+      await getMonthsFromYearPage(yearLink);
     }
+
     connection.end();
     process.exit();
   })
