@@ -58,7 +58,7 @@ const getYearLinks = ($) =>
     .toArray();
 
 async function saveToDB(headline, link, date, month, imgLink, imgAlt) {
-  var sql = `INSERT INTO cnn (headline, link, date, month, imglink, imgalt) VALUES ("${headline}", "${link}", "${date}", "${month}", "${imgLink}", "${imgAlt}");`;
+  var sql = `INSERT INTO cnn (headline, link, date, month, imglink, imgalt) VALUES (${connection.escape(headline)}, ${connection.escape(link)}, ${connection.escape(date)}, ${connection.escape(month)}, ${connection.escape(imgLink)}, ${connection.escape(imgAlt)});`;
   console.log(sql);
 
   await new Promise((resolve, reject) => {
@@ -90,17 +90,6 @@ async function getArticlesLinksFromDB() {
     (articleLink) => articleLink.link
   );
   return articlesLinksFromDB;
-}
-
-function regexReplace(headline, pageLink, date, month) {
-  const reg = /("|'|`)/gm;
-
-  headline = headline.replace(reg, "'");
-  pageLink = pageLink.replace(reg, "'");
-  date = date.replace(reg, "'");
-  month = month.replace(reg, "'");
-
-  return { headline, pageLink, date, month };
 }
 
 async function getImgAndAlt(pageLink) {
@@ -141,8 +130,6 @@ const enterArticlePage = (monthLink, month) => {
     for (let i = 0; i < articles.length; i++) {
       let { headline, pageLink, date, month } = articles[i];
 
-      let article = regexReplace(headline, pageLink, date, month);
-
       const isDuplicateLink = articlesLinksFromDB.some(
         (element) => element === pageLink
       );
@@ -151,10 +138,10 @@ const enterArticlePage = (monthLink, month) => {
       let { imgLink, imgAlt } = await getImgAndAlt(pageLink);
 
       await saveToDB(
-        article.headline,
-        article.pageLink,
-        article.date,
-        article.month,
+        headline,
+        pageLink,
+        date,
+        month,
         imgLink,
         imgAlt
       );
