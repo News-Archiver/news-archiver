@@ -4,14 +4,12 @@ require("dotenv").config();
 
 const app = express();
 
-var cnnDataLength;
-
-var db_config = mysql.createConnection({
+var db_config = {
   host: process.env.host,
   user: process.env.user,
   password: process.env.password,
   database: process.env.database,
-});
+};
 
 var connection;
 function handleDisconnect() {
@@ -23,11 +21,6 @@ function handleDisconnect() {
       setTimeout(handleDisconnect, 2000);
     }
     console.log("Connected!");
-
-    connection.query("SELECT * FROM news.cnn;", (error, elements) => {
-      if (error) throw error;
-      cnnDataLength = elements.length;
-    });
   });
 
   connection.on("error", function (err) {
@@ -39,6 +32,8 @@ function handleDisconnect() {
     }
   });
 }
+
+handleDisconnect();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

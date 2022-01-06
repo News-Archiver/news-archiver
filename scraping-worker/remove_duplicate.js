@@ -21,4 +21,4 @@ async function removeDuplicate() {
   });
 }
 
-await removeDuplicate();
+removeDuplicate();
