@@ -6,22 +6,39 @@ const app = express();
 
 var cnnDataLength;
 
-var connection = mysql.createConnection({
+var db_config = mysql.createConnection({
   host: process.env.host,
   user: process.env.user,
   password: process.env.password,
   database: process.env.database,
 });
 
-connection.connect((err) => {
-  if (err) throw err;
-  console.log("Connected!");
+var connection;
+function handleDisconnect() {
+  connection = mysql.createConnection(db_config);
 
-  connection.query("SELECT * FROM news.cnn;", (error, elements) => {
-    if (error) throw error;
-    cnnDataLength = elements.length;
+  connection.connect((err) => {
+    if (err) {
+      console.log("error when connecting to db:", err);
+      setTimeout(handleDisconnect, 2000);
+    }
+    console.log("Connected!");
+
+    connection.query("SELECT * FROM news.cnn;", (error, elements) => {
+      if (error) throw error;
+      cnnDataLength = elements.length;
+    });
   });
-});
+
+  connection.on("error", function (err) {
+    console.log("db error", err);
+    if (err.code === "PROTOCOL_CONNECTION_LOST") {
+      handleDisconnect();
+    } else {
+      throw err;
+    }
+  });
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
