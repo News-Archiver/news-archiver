@@ -12,9 +12,9 @@ const FetchMoreData = (pageNum, query) => {
   }, [query])
 
   useEffect(() => {
-    let cancel;
-    let delay = setTimeout(() => {console.log("here"); console.log(setLoading(true))}, 2000)
+    setLoading(true);
     setError(false);
+    let cancel;
     axios({
       method: "GET",
       url: "http://localhost:3000/api/getCNN",
@@ -22,21 +22,14 @@ const FetchMoreData = (pageNum, query) => {
       cancelToken: new axios.CancelToken((c) => (cancel = c)),
     })
       .then((res) => {
-        console.log(res.data);
-        console.log(query);
         setData((prevCnnList) => {
-          return [...prevCnnList, ...res.data];
+          return [...new Set([...prevCnnList, ...res.data])];
         });
         setHasMore(res.data.length > 0);
-        clearTimeout(delay);
         setLoading(false);
       })
       .catch((e) => {
-        if (axios.isCancel(e)) {
-          clearTimeout(delay);
-          setLoading(false);
-          return
-        }
+        if (axios.isCancel(e)) return;
         setError(true);
       });
     return () => cancel();
