@@ -13,7 +13,7 @@ const FetchMoreData = (pageNum, query) => {
 
   useEffect(() => {
     let cancel;
-    setLoading(true);
+    let delay = setTimeout(() => {console.log("here"); console.log(setLoading(true))}, 2000)
     setError(false);
     axios({
       method: "GET",
@@ -23,14 +23,20 @@ const FetchMoreData = (pageNum, query) => {
     })
       .then((res) => {
         console.log(res.data);
+        console.log(query);
         setData((prevCnnList) => {
           return [...prevCnnList, ...res.data];
         });
         setHasMore(res.data.length > 0);
+        clearTimeout(delay);
         setLoading(false);
       })
       .catch((e) => {
-        if (axios.isCancel(e)) return;
+        if (axios.isCancel(e)) {
+          clearTimeout(delay);
+          setLoading(false);
+          return
+        }
         setError(true);
       });
     return () => cancel();
