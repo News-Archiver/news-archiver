@@ -13,3 +13,7 @@ a:hover {
 .card:hover {
   transform: scale(1.05);
 }
+
+body {
+  margin: 5px;
+}

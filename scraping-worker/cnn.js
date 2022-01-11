@@ -145,6 +145,8 @@ const enterArticlePage = (monthLink, month) => {
     for (let i = 0; i < articles.length; i++) {
       let { headline, pageLink, date, month } = articles[i];
 
+      console.log(pageLink);
+
       const isDuplicateLink = articlesLinksFromDB.some(
         (element) => element === pageLink
       );

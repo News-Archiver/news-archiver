@@ -3,9 +3,10 @@ import React, { useState, useRef, useCallback } from "react";
 import FetchMoreData from "./components/FetchMoreData";
 
 function App() {
+  const [query, setQuery] = useState("");
   const [pageNum, setPageNum] = useState(1);
 
-  const { isloading, data, hasMore } = FetchMoreData(pageNum);
+  const { isloading, data, hasMore, error } = FetchMoreData(pageNum, query);
 
   const observer = useRef();
   const lastCnnElementRef = useCallback(
@@ -22,8 +23,36 @@ function App() {
     [isloading, hasMore]
   );
 
+  function handleSearch(e) {
+    setQuery(e.target.value);
+    setPageNum(1);
+  }
+
   return (
     <>
+      <input
+        type="text"
+        className="
+        form-control
+        block
+        w-full
+        px-3
+        py-1.5
+        text-base
+        font-normal
+        text-gray-700
+        bg-white bg-clip-padding
+        border border-solid border-gray-300
+        rounded
+        transition
+        ease-in-out
+        m-0
+        focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none
+      "
+        placeholder="Search"
+        onChange={handleSearch}
+        value={query}
+      />
       <div className="grid grid-cols-5 gap-5 mt-4">
         {data.map((val, key) => {
           const sliceDate = val.date.slice(0, 10);
@@ -84,6 +113,7 @@ function App() {
         })}
       </div>
       <div>{isloading && "Loading..."}</div>
+      <div>{error && "Error..."}</div>
     </>
   );
 }
