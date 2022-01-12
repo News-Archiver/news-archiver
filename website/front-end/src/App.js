@@ -1,6 +1,6 @@
 import "./App.css";
 import React, { useState, useRef, useCallback } from "react";
-import FetchMoreData from "./components/FetchMoreData";
+import FetchMoreData from "./hooks/FetchMoreData";
 
 function App() {
   const [query, setQuery] = useState("");
