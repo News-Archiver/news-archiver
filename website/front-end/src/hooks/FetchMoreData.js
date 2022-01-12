@@ -8,7 +8,7 @@ const FetchMoreData = (pageNum, query) => {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    setData([])
+    setData([]);
   }, [query])
 
   useEffect(() => {
@@ -22,11 +22,20 @@ const FetchMoreData = (pageNum, query) => {
       cancelToken: new axios.CancelToken((c) => (cancel = c)),
     })
       .then((res) => {
-        setData((prevCnnList) => {
-          return [...new Set([...prevCnnList, ...res.data])];
-        });
-        setHasMore(res.data.length > 0);
-        setLoading(false);
+        if (query === "") {
+          setData((prevCnnList) => {
+            return [...new Set([...prevCnnList, ...res.data])];
+          });
+          setHasMore(res.data.length > 0);
+          setLoading(false);
+        } else {
+          setData((prevCnnList) => {
+            return [...prevCnnList, ...res.data];
+          });
+          console.log(data, pageNum);
+          setHasMore(res.data.length > 0);
+          setLoading(false);
+        }
       })
       .catch((e) => {
         if (axios.isCancel(e)) return;
