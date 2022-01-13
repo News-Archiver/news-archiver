@@ -8,21 +8,6 @@ function App() {
 
   const { isloading, data, hasMore, error } = FetchMoreData(pageNum, query);
 
-  const observer = useRef();
-  const lastCnnElementRef = useCallback(
-    (node) => {
-      if (isloading) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPageNum((prevPageNum) => prevPageNum + 1);
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [isloading, hasMore]
-  );
-
   function handleSearch(e) {
     setQuery(e.target.value);
     setPageNum(1);
@@ -63,7 +48,7 @@ function App() {
           if (data.length === key + 1) {
             return (
               <div
-                ref={lastCnnElementRef}
+                // ref={lastCnnElementRef}
                 key={key}
                 className="max-w-sm rounded overflow-hidden shadow-lg mb-4 card"
               >

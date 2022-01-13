@@ -32,7 +32,6 @@ const FetchMoreData = (pageNum, query) => {
           setData((prevCnnList) => {
             return [...res.data];
           });
-          console.log(res.data);
           setHasMore(res.data.length > 0);
           setLoading(false);
         }
