@@ -1,17 +1,47 @@
 import "./App.css";
-import React, { useState, useRef, useCallback } from "react";
-import FetchMoreData from "./hooks/FetchMoreData";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function App() {
+  const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const [query, setQuery] = useState("");
-  const [pageNum, setPageNum] = useState(1);
 
-  const { isloading, data, hasMore, error } = FetchMoreData(pageNum, query);
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(
+          `http://localhost:3000/api/getCNN?page=${page}&q=${query}`
+        );
+        if (query === "") {
+          setUsers((users) => [...users, ...response.data]);
+        } else {
+          setUsers([]);
+          setUsers((users) => [...response.data]);
+        }
+      } catch (error) {
+        setErrorMsg("Error while loading data. Try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUsers();
+  }, [page, query]);
+
+  const loadMore = () => {
+    setPage((page) => page + 1);
+  };
 
   function handleSearch(e) {
     setQuery(e.target.value);
-    setPageNum(1);
+    setPage(1);
   }
+
+  console.log(users);
 
   return (
     <>
@@ -39,66 +69,44 @@ function App() {
         value={query}
       />
       <div className="grid grid-cols-5 gap-5 mt-4">
-        {data.map((val, key) => {
+        {users.map((val, key) => {
           const sliceDate = val.date.slice(0, 10);
           if (val.imgalt === "undefined") {
             val.imgalt = "No image for this article";
             val.imglink = "#";
           }
-          if (data.length === key + 1) {
-            return (
-              <div
-                // ref={lastCnnElementRef}
-                key={key}
-                className="max-w-sm rounded overflow-hidden shadow-lg mb-4 card"
-              >
-                <a href={val.link}>
-                  <img className="w-full" src={val.imglink} alt={val.imgalt} />
-                </a>
-                <div className="px-6 py-4">
-                  <div className="font-bold text-xl mb-2">
-                    <a href={val.link}>{val.headline}</a>
-                  </div>
-                </div>
-                <div className="px-6 pt-4 pb-2">
-                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    {sliceDate}
-                  </span>
-                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    {val.month}
-                  </span>
+          return (
+            <div
+              key={key}
+              className="max-w-sm rounded overflow-hidden shadow-lg mb-4 card"
+            >
+              <a href={val.link}>
+                <img className="w-full" src={val.imglink} alt={val.imgalt} />
+              </a>
+              <div className="px-6 py-4">
+                <div className="font-bold text-xl mb-2">
+                  <a href={val.link}>{val.headline}</a>
                 </div>
               </div>
-            );
-          } else {
-            return (
-              <div
-                key={key}
-                className="max-w-sm rounded overflow-hidden shadow-lg mb-4 card"
-              >
-                <a href={val.link}>
-                  <img className="w-full" src={val.imglink} alt={val.imgalt} />
-                </a>
-                <div className="px-6 py-4">
-                  <div className="font-bold text-xl mb-2">
-                    <a href={val.link}>{val.headline}</a>
-                  </div>
-                </div>
-                <div className="px-6 pt-4 pb-2">
-                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    {sliceDate}
-                  </span>
-                  <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    {val.month}
-                  </span>
-                </div>
+              <div className="px-6 pt-4 pb-2">
+                <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                  {sliceDate}
+                </span>
+                <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
+                  {val.month}
+                </span>
               </div>
-            );
-          }
+            </div>
+          );
         })}
       </div>
-      <div>{isloading && "Loading..."}</div>
-      <div>{error && "Error..."}</div>
+      {errorMsg && <p>{errorMsg}</p>}
+      <button
+        onClick={loadMore}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+      >
+        {isLoading ? "Loading..." : "Load More"}
+      </button>
     </>
   );
 }

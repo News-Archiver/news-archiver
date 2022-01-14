@@ -9,7 +9,7 @@ const FetchMoreData = (pageNum, query) => {
 
   useEffect(() => {
     // setData([]);
-  }, [query])
+  }, [query]);
 
   useEffect(() => {
     setLoading(true);
