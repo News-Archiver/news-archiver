@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 function App() {
-  const [users, setUsers] = useState([]);
+  const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -16,12 +16,7 @@ function App() {
         const response = await axios.get(
           `http://localhost:3000/api/getCNN?page=${page}&q=${query}`
         );
-        if (query === "") {
-          setUsers((users) => [...users, ...response.data]);
-        } else {
-          setUsers([]);
-          setUsers((users) => [...response.data]);
-        }
+        setData((data) => [...data, ...response.data]);
       } catch (error) {
         setErrorMsg("Error while loading data. Try again later.");
       } finally {
@@ -40,8 +35,6 @@ function App() {
     setQuery(e.target.value);
     setPage(1);
   }
-
-  console.log(users);
 
   return (
     <>
@@ -69,7 +62,7 @@ function App() {
         value={query}
       />
       <div className="grid grid-cols-5 gap-5 mt-4">
-        {users.map((val, key) => {
+        {data.map((val, key) => {
           const sliceDate = val.date.slice(0, 10);
           if (val.imgalt === "undefined") {
             val.imgalt = "No image for this article";
