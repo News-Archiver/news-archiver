@@ -16,7 +16,12 @@ function App() {
         const response = await axios.get(
           `http://localhost:3000/api/getCNN?page=${page}&q=${query}`
         );
-        setData((data) => [...data, ...response.data]);
+        console.log(page, query)
+        if (page > 1) {
+          setData((data) => [...data, ...response.data]);
+        } else {
+          setData((data) => [...response.data]);
+        }
       } catch (error) {
         setErrorMsg("Error while loading data. Try again later.");
       } finally {
