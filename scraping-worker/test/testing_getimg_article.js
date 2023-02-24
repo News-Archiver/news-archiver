@@ -5,11 +5,11 @@ const prompt = require("prompt-sync")({ sigint: true });
 const url = prompt("URL: ");
 
 const getImage = ($) =>
-  $(".l-container")
+  $(".image__container")
     .map((_, product) => {
       const $product = $(product);
       return {
-        img: `https:${$product.find("img").attr("data-src-small")}`,
+        img: `${$product.find("img").attr("src")}`,
         alt: $product.find("img").attr("alt"),
       };
     })

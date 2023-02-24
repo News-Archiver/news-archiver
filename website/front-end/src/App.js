@@ -16,7 +16,7 @@ function App() {
         const response = await axios.get(
           `http://localhost:3000/api/getCNN?page=${page}&q=${query}`
         );
-        console.log(page, query)
+        console.log(page, query);
         if (page > 1) {
           setData((data) => [...data, ...response.data]);
         } else {

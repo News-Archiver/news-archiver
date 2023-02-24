@@ -57,17 +57,30 @@ const getYearLinks = ($) =>
     })
     .toArray();
 
+const ranges = [
+  "\ud83c[\udf00-\udfff]", // U+1F300 to U+1F3FF
+  "\ud83d[\udc00-\ude4f]", // U+1F400 to U+1F64F
+  "\ud83d[\ude80-\udeff]", // U+1F680 to U+1F6FF
+  " ", // Also allow spaces
+].join("|");
+
 async function saveToDB(headline, link, date, month, imgLink, imgAlt) {
+  if (imgAlt === null || imgAlt === undefined) {
+    imgAlt = "";
+  }
   var sql = `INSERT INTO cnn (headline, link, date, month, imglink, imgalt) VALUES (${connection.escape(
     headline
   )}, ${connection.escape(link)}, ${connection.escape(
     date
   )}, ${connection.escape(month)}, ${connection.escape(
     imgLink
-  )}, ${connection.escape(imgAlt)});`;
+  )}, ${connection.escape(imgAlt.replace(new RegExp(ranges, "g"), ""))});`;
   console.log(sql);
 
+  console.log(imgAlt);
+
   await new Promise((resolve, reject) => {
+    console.log(sql);
     connection.query(sql, (error, elements) => {
       if (error) {
         return reject(error);
@@ -105,6 +118,7 @@ async function getImgAndAlt(pageLink) {
     .then(async ({ data }) => {
       const $ = cheerio.load(data);
       const content = await getImageFromParticularArticle($);
+      console.log(pageLink);
 
       if (content.length === 0) {
         imgLink = "https:undefined";
@@ -230,6 +244,10 @@ axios
     process.exit();
   })
   .catch((error) => {
-    console.error(error instanceof Error ? error.stack : error);
-    process.exit(1);
+    if (error.response && error.response.status === 404) {
+      console.log("Page not found");
+    } else {
+      console.error(error instanceof Error ? error.stack : error);
+      process.exit(1);
+    }
   });
