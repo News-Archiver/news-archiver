@@ -3,17 +3,17 @@
 @tailwind utilities;
 
 a:hover {
-  color: red;
+    color: red;
 }
 
 .card {
-  transition: transform 0.3s;
+    transition: transform 0.3s;
 }
 
 .card:hover {
-  transform: scale(1.05);
+    transform: scale(1.05);
 }
 
 body {
-  margin: 10px;
+    margin: 10px;
 }

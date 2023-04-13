@@ -5,41 +5,41 @@ const prompt = require("prompt-sync")({ sigint: true });
 const url = prompt("URL: ");
 
 const getImage = ($) =>
-  $(".image__container")
-    .map((_, product) => {
-      const $product = $(product);
-      return {
-        img: `${$product.find("img").attr("src")}`,
-        alt: $product.find("img").attr("alt"),
-      };
-    })
-    .toArray();
+    $(".image__container")
+        .map((_, product) => {
+            const $product = $(product);
+            return {
+                img: `${$product.find("img").attr("src")}`,
+                alt: $product.find("img").attr("alt"),
+            };
+        })
+        .toArray();
 
 axios
-  .get(url)
-  .then(async ({ data }) => {
-    let imgLink, imgAlt;
-    const $ = cheerio.load(data);
-    const content = await getImage($);
+    .get(url)
+    .then(async ({ data }) => {
+        let imgLink, imgAlt;
+        const $ = cheerio.load(data);
+        const content = await getImage($);
 
-    if (content.length === 0) {
-      imgLink = "https:undefined";
-      imgAlt = "undefined";
-    } else {
-      imgLink = content[0].img;
-      imgAlt = content[0].alt;
-    }
+        if (content.length === 0) {
+            imgLink = "https:undefined";
+            imgAlt = "undefined";
+        } else {
+            imgLink = content[0].img;
+            imgAlt = content[0].alt;
+        }
 
-    if (imgLink === "https:undefined") {
-      imgAlt = "undefined";
-    }
-    console.log(imgLink, imgAlt);
-  })
-  .catch((error) => {
-    if (
-      error.response.status === 500 &&
-      error.response.statusText === "Internal Server Error"
-    ) {
-      return;
-    }
-  });
+        if (imgLink === "https:undefined") {
+            imgAlt = "undefined";
+        }
+        console.log(imgLink, imgAlt);
+    })
+    .catch((error) => {
+        if (
+            error.response.status === 500 &&
+            error.response.statusText === "Internal Server Error"
+        ) {
+            return;
+        }
+    });
