@@ -14,7 +14,7 @@ function App() {
             try {
                 setIsLoading(true);
                 const response = await axios.get(
-                    `http://localhost:3000/api/getCNN?page=${page}&q=${query}`
+                    `https://newsarchiverdiff.com/api/getCNN?page=${page}&q=${query}`
                 );
                 console.log(page, query);
                 if (page > 1) {

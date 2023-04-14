@@ -17,7 +17,7 @@ const FetchMoreData = (pageNum, query) => {
         let cancel;
         axios({
             method: "GET",
-            url: "http://localhost:3000/api/getCNN",
+            url: "https://newsarchiverdiff.com/api/getCNN",
             params: { page: pageNum, q: query },
             cancelToken: new axios.CancelToken((c) => (cancel = c)),
         })

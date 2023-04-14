@@ -1,8 +1,11 @@
 const express = require("express");
 const mysql = require("mysql");
 require("dotenv").config();
+const cors = require('cors')
 
 const app = express();
+
+app.use(cors())
 
 var db_config = {
     host: process.env.host,
@@ -97,6 +100,6 @@ app.get("/api/getCNN/", async function (req, resp) {
 });
 
 const PORT = 3000;
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, "localhost", () => {
     console.log(`Server running http://localhost:${server.address().port}`);
 });
