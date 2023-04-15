@@ -99,7 +99,7 @@ app.get("/api/getCNN/", async function (req, resp) {
     // await connection.end();
 });
 
-const PORT = 3000;
+const PORT = 3001;
 const server = app.listen(PORT, "localhost", () => {
     console.log(`Server running http://localhost:${server.address().port}`);
 });
