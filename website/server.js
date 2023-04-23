@@ -8,10 +8,10 @@ const app = express();
 app.use(cors())
 
 var db_config = {
-    host: process.env.host,
-    user: process.env.user,
-    password: process.env.password,
-    database: process.env.database,
+    host: "localhost",
+    user: "root",
+    password: "root",
+    database: "news"
 };
 
 var connection;

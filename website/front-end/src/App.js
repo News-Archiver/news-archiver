@@ -16,7 +16,6 @@ function App() {
                 const response = await axios.get(
                     `https://newsarchiverdiff.com/api/getCNN?page=${page}&q=${query}`
                 );
-                console.log(page, query);
                 if (page > 1) {
                     setData((data) => [...data, ...response.data]);
                 } else {
@@ -66,7 +65,7 @@ function App() {
                 onChange={handleSearch}
                 value={query}
             />
-            <div className="grid grid-cols-5 gap-5 mt-4">
+            <div className="grid grid-cols-4 gap-5 mt-4">
                 {data.map((val, key) => {
                     const sliceDate = val.date.slice(0, 10);
                     if (val.imgalt === "undefined") {
